@@ -37,8 +37,7 @@ admin.site.register(CustomUser, CustomUserAdmin)
 
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('pseudo_name', 'death_day',
-                    'home_country', 'home_state', 'home_town', 'approved')
-    list_filter = ('approved',)
+                    'home_country', 'home_state', 'home_town')
 
 
 # Registrar o modelo Author e a classe de administração AuthorAdmin

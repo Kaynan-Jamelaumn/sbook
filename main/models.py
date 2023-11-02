@@ -3,7 +3,6 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    # Campos adicionais
     birth_date = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(
         upload_to='profile_pictures/', null=True, blank=True)
@@ -30,19 +29,16 @@ class CustomUser(AbstractUser):
         max_length=30, choices=GENDER_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     pseudo_name = models.CharField(
-        max_length=150, null=True, blank=True)
-    # Adicione mais campos personalizados, se necessário
-
-    def __str__(self):
-        return self.username
-
-    # Defina nomes personalizados para relacionamentos com grupos e permissões
+        max_length=150, null=True, blank=True, unique=True)
     groups = models.ManyToManyField(
         'auth.Group', related_name='custom_users', blank=True)
     user_permissions = models.ManyToManyField(
         'auth.Permission', related_name='custom_users')
+
+    def __str__(self):
+        return self.username
 
 
 class Author(models.Model):
@@ -53,7 +49,7 @@ class Author(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(
         upload_to='profile_pictures/', null=True, blank=True)
-    
+
     bio = models.TextField(null=True, blank=True, max_length=3000)
 
     SEX_CHOICES = [
@@ -78,8 +74,6 @@ class Author(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
-
     pseudo_name = models.CharField(
         max_length=150, null=True, blank=True)
     death_day = models.DateField(null=True, blank=True)
@@ -89,8 +83,6 @@ class Author(models.Model):
         max_length=150, null=True, blank=True)
     home_town = models.CharField(
         max_length=150, null=True, blank=True)
-    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f" {self.pseudo_name} {self.first_name} {self.last_name}"
-
