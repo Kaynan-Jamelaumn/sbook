@@ -30,7 +30,9 @@ class CustomUser(AbstractUser):
         max_length=30, choices=GENDER_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
+    pseudo_name = models.CharField(
+        max_length=150, null=True, blank=True)
     # Adicione mais campos personalizados, se necessário
 
     def __str__(self):
@@ -43,20 +45,41 @@ class CustomUser(AbstractUser):
         'auth.Permission', related_name='custom_users')
 
 
-class Author(CustomUser):
-    user = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name='authors')
-    # birth_date = models.DateField(null=True, blank=True)
-    # profile_picture = models.ImageField(
-    #     upload_to='profile_pictures/', null=True, blank=True)
-    # bio = models.TextField(null=True, blank=True)
-    # name = models.CharField(max_length=150, null=True, blank=True)
-    # last_name = models.CharField(max_length=150, null=True, blank=True)
+class Author(models.Model):
 
-    # sex = models.CharField(
-    #     max_length=1, choices=SEX_CHOICES, null=True, blank=True)
-    # gender = models.CharField(
-    #     max_length=20, choices=GENDER_CHOICES, null=True, blank=True)
+    first_name = models.CharField(max_length=150, null=True, blank=True)
+    last_name = models.CharField(max_length=150, null=True, blank=True)
+
+    birth_date = models.DateField(null=True, blank=True)
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/', null=True, blank=True)
+    
+    bio = models.TextField(null=True, blank=True, max_length=3000)
+
+    SEX_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+    ]
+
+    GENDER_CHOICES = [
+        ('Woman', 'Woman'),
+        ('Man', 'Man'),
+        ('Non-binary', 'Non-binary'),
+        ('Other', 'Other'),
+        ('Genderfluid', 'Genderfluid'),
+        ('Agender', 'Agender'),
+        ('The Love of Your Life', 'The Love of Your Life'),
+        ('Heavenly Demon', 'Heavenly Demon'),
+    ]
+    sex = models.CharField(
+        max_length=1, choices=SEX_CHOICES, null=True, blank=True)
+    gender = models.CharField(
+        max_length=30, choices=GENDER_CHOICES, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+
     pseudo_name = models.CharField(
         max_length=150, null=True, blank=True)
     death_day = models.DateField(null=True, blank=True)
@@ -67,23 +90,7 @@ class Author(CustomUser):
     home_town = models.CharField(
         max_length=150, null=True, blank=True)
     approved = models.BooleanField(default=False)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f" {self.pseudo_name}"
+        return f" {self.pseudo_name} {self.first_name} {self.last_name}"
 
-    # GENDER_CHOICES = [
-    #     ('Woman', 'Woman'),
-    #     ('Man', 'Man'),
-    #     ('Non-binary', 'Non-binary'),
-    #     ('Other', 'Other'),
-    #     ('Genderfluid', 'Genderfluid'),
-    #     ('Agender', 'Agender'),
-    #     ('The Love of Your Life', 'The Love of Your Life'),
-    #     ('Heavenly Demon', 'Heavenly Demon'),
-    # ]
-    # sex = models.CharField(
-    #     max_length=1, choices=SEX_CHOICES, null=True, blank=True)
-    # gender = models.CharField(
-    #     max_length=30, choices=GENDER_CHOICES, null=True, blank=True)

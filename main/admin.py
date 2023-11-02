@@ -36,7 +36,7 @@ admin.site.register(CustomUser, CustomUserAdmin)
 
 
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('user', 'pseudo_name', 'death_day',
+    list_display = ('pseudo_name', 'death_day',
                     'home_country', 'home_state', 'home_town', 'approved')
     list_filter = ('approved',)
 

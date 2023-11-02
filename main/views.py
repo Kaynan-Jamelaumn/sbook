@@ -4,11 +4,16 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
+
 
 from .models import CustomUser, Author
-from .serializers import CustomUserSerializer, CustomUserListSerializer
+from .serializers import CustomUserSerializer, CustomUserListSerializer, AuthorSerializer, AuthorListSerializer
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
+from piece.models import Piece
+
+
 
 
 class CustomUserCreate(generics.CreateAPIView):
@@ -61,7 +66,7 @@ class CustomUserEdit(APIView):
 
     def get(self, request, username):
         user = self.get_object(username)
-
+        print(user,"aaa")
         if user is None:
             return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -73,7 +78,6 @@ class CustomUserEdit(APIView):
 
     def put(self, request, username):
         user = self.get_object(username)
-
         if user is None:
             return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -100,3 +104,70 @@ class CustomUserEdit(APIView):
 class CustomUserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserListSerializer
+
+
+
+
+class AuthorCreate(generics.CreateAPIView):
+    permission_classes = [IsAdminUser]
+
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+
+class AuthorEdit(APIView):
+    permission_classes = [IsAdminUser]
+
+    def put(self, request, id):
+        author = Author.objects.get(id=id)
+        if request.user == author.user or request.user.is_staff:
+            serializer = AuthorSerializer(
+                author, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "You do not have permission to edit this author"}, status=status.HTTP_403_FORBIDDEN)
+
+
+class AuthorUpdate(APIView):
+    permission_classes = [IsAdminUser]
+
+    def put(self, request, id):
+        author = Author.objects.get(id=id)
+        if request.user == author.user or request.user.is_staff:
+            author.is_active = False
+            author.save()
+            return Response({"detail": "Author updated and set as inactive"}, status=status.HTTP_200_OK)
+        return Response({"detail": "You do not have permission to update this author"}, status=status.HTTP_403_FORBIDDEN)
+
+
+class AuthorDelete(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, id):
+        author = Author.objects.get(id=id)
+        if request.user == author.user or request.user.is_staff:
+            author.is_active = False
+            author.save()
+            return Response({"detail": "Author deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "You do not have permission to delete this author"}, status=status.HTTP_403_FORBIDDEN)
+
+
+class AuthorDetail(APIView):
+    permission_classes = [IsAuthenticated | IsAdminUser]
+
+    def get(self, request, id):
+        author = Author.objects.get(id=id)
+        serializer = AuthorSerializer(author)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AuthorsList(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        authors = Author.objects.all()
+        serializer = AuthorListSerializer(authors, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+

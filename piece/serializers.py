@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment
+from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation
+from main.models import CustomUser, Author
 
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,6 +12,35 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = '__all__'
 
+
+class PieceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Piece
+        fields = '__all__'
+
+    def validate(self, data):
+            author = data.get('author')
+            custom_user = data.get('custom_user')
+
+            if not author and not custom_user:
+                raise serializers.ValidationError("Pelo menos um autor ou usuário personalizado deve ser especificado.")
+
+            return data
+class ChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter
+        fields = '__all__'
+
+
+
+
+
+
+
+
+
+
+
 class TextContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TextContent
@@ -21,22 +51,29 @@ class ImageContentSerializer(serializers.ModelSerializer):
         model = ImageContent
         fields = '__all__'
 
-class PageContentSerializer(serializers.ModelSerializer):
+class PageContentSerializer(serializers.Serializer):
+    text_content = TextContentSerializer(required=False)
+    image_content = ImageContentSerializer(required=False)
+
+class PageSerializer(serializers.ModelSerializer):
+    content = serializers.SerializerMethodField()
+
+    def get_content(self, obj):
+        if isinstance(obj.content, TextContent):
+            serializer = TextContentSerializer(obj.content)
+        elif isinstance(obj.content, ImageContent):
+            serializer = ImageContentSerializer(obj.content)
+        else:
+            serializer = PageContentSerializer(obj.content)
+        return serializer.data
+
     class Meta:
-        model = PageContent
+        model = Page
         fields = '__all__'
 
-class PieceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Piece
-        fields = '__all__'
 
-class ChapterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Chapter
-        fields = '__all__'
 
-class CommentSerializer(serializers.ModelSerializer):
+class PieceAnotationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Comment
+        model = PieceAnotation
         fields = '__all__'
