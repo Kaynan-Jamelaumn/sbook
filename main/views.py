@@ -13,6 +13,16 @@ from django.contrib.auth.hashers import make_password
 
 class CustomUserView(APIView):
 
+    def to_retrieve(self, request=None, username=None):
+        if username:
+            user = self.get_object(username)
+        else:
+            user = self.get_object(request.data.get('username'))
+
+        if not user:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return user
+
     def required_fields(self, request):
         if not request.data.get("first_name"):
             return Response({"detail": "First Name field is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -49,13 +59,7 @@ class CustomUserView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, username=None):
-        if username:
-            user = self.get_object(username)
-        else:
-            user = self.get_object(request.data.get('username'))
-        if user is None:
-            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
+        user = self.to_retrieve(request, username)
         if request.user != user and not request.user.is_staff:
             return Response({"detail": "You do not have permission to edit this user"}, status=status.HTTP_403_FORBIDDEN)
 
@@ -73,13 +77,7 @@ class CustomUserView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, username=None):
-        if username:
-            user = self.get_object(username)
-        else:
-            user = self.get_object(request.data.get('username'))
-        if user is None:
-            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
+        user = self.to_retrieve(request, username)
         if request.user != user and not request.user.is_staff:
             return Response({"detail": "You do not have permission to delete this user"}, status=status.HTTP_403_FORBIDDEN)
         user.is_active = False
@@ -111,6 +109,19 @@ class CustomUserLogout(APIView):
 
 
 class AuthorView(APIView):
+    def is_allowed(self, request):
+        if not request.user.is_staff:
+            return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
+
+    def to_retrieve(self, request=None, id=None):
+        if id:
+            author = self.get_object(id)
+        else:
+            author = self.get_object(request.data.get('id'))
+
+        if not author:
+            return Response({"detail": "Publisher not found"}, status=status.HTTP_404_NOT_FOUND)
+        return author
 
     def get_object(self, id):
         try:
@@ -137,12 +148,8 @@ class AuthorView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, id=None):
-        if id:
-            author = self.get_object(id)
-        else:
-            author = self.get_object(request.data.get('id'))
-        if not request.user.is_staff:
-            return Response({"detail": "You do not have permission to edit this author"}, status=status.HTTP_403_FORBIDDEN)
+        self.is_allowed()
+        author = self.to_retrieve(request, id)
 
         serializer = AuthorSerializer(
             author, data=request.data, partial=True)
@@ -153,12 +160,8 @@ class AuthorView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id=None):
-        if id:
-            author = self.get_object(id)
-        else:
-            author = self.get_object(request.data.get('id'))
-        if not request.user.is_staff:
-            return Response({"detail": "You do not have permission to delete this author"}, status=status.HTTP_403_FORBIDDEN)
+        self.is_allowed()
+        author = self.to_retrieve(request, id)
 
         author.delete()
         return Response({"detail": "Author deleted and set as inactive"}, status=status.HTTP_200_OK)
