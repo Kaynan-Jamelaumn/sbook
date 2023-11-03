@@ -1,18 +1,9 @@
-from rest_framework import viewsets, generics
 from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation
 from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceAnotationSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, BasePermission
 from rest_framework.response import Response
-
-# class PublisherViewSet(viewsets.ModelViewSet):
-#     queryset = Publisher.objects.all()
-#     serializer_class = PublisherSerializer
-
-# class GenreViewSet(viewsets.ModelViewSet):
-#     queryset = Genre.objects.all()
-#     serializer_class = GenreSerializer
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -23,7 +14,9 @@ class IsAdminOrReadOnly(BasePermission):
 
 
 class GenreView(APIView):
-    permission_classes = [IsAdminUser]
+    def is_allowed(self, request):
+        if not request.user.is_staff:
+            return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
 
     def to_retrieve(self, request=None, name=None):
 
@@ -43,8 +36,8 @@ class GenreView(APIView):
             return None
 
     def get(self, request, name=None):
-        if name:
-            self.get_object(name)
+        if name or request.data.get('name'):
+            self.to_retrieve(request, name)
             serializer = GenreSerializer(genre)
         else:
             genre = Genre.objects.all()
@@ -52,9 +45,7 @@ class GenreView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        if not request.user.is_staff:
-            return Response({"detail": "You do not have permission to post an Genre"}, status=status.HTTP_403_FORBIDDEN)
-
+        self.is_allowed(self, request)
         serializer = GenreSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -62,6 +53,7 @@ class GenreView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, name=None):
+        self.is_allowed(self, request)
         genre = self.to_retrieve(request, name)
 
         serializer = GenreSerializer(genre, data=request.data, partial=True)
@@ -71,6 +63,7 @@ class GenreView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, name=None):
+        self.is_allowed(self, request)
         genre = self.to_retrieve(request, name)
 
         genre.delete()
@@ -78,7 +71,9 @@ class GenreView(APIView):
 
 
 class PublisherView(APIView):
-    permission_classes = [IsAdminUser]
+    def is_allowed(self, request):
+        if not request.user.is_staff:
+            return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
 
     def to_retrieve(self, request=None, id=None):
         if id:
@@ -97,11 +92,16 @@ class PublisherView(APIView):
             return None
 
     def get(self, request, id=None):
-        serializer = self.to_retrieve(request, id)
-        return Response(serializer.data)
+        if id or request.data.get('id'):
+            publisher = self.to_retrieve(request, id)
+            serializer = PublisherSerializer(publisher)
+        else:
+            publisher = Publisher.objects.all()
+            serializer = PublisherSerializer(publisher, many=True)
+        return Response(serializer.data,  status=status.HTTP_200_OK)
 
     def post(self, request):
-
+        self.is_allowed(self, request)
         serializer = PublisherSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -109,6 +109,7 @@ class PublisherView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id=None):
+        self.is_allowed(self, request)
         publisher = self.to_retrieve(request, id)
 
         serializer = PublisherSerializer(
@@ -119,105 +120,110 @@ class PublisherView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
+        self.is_allowed(self, request)
         publisher = self.to_retrieve(request, id)
         publisher.delete()
         return Response({"detail": "Publisher deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
-class PieceList(APIView):
-    def get(self, request):
-        pieces = Piece.objects.all()
-        serializer = PieceSerializer(pieces, many=True)
-        return Response(serializer.data)
+class PieceView(APIView):
 
-    def post(self, request):
-        serializer = PieceSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def to_retrieve(self, request=None, isbn=None):
+        if isbn:
+            piece = self.get_object(isbn)
+        else:
+            piece = self.get_object(request.data.get('isbn'))
 
+        if not piece:
+            return Response({"detail": "Piece not found"}, status=status.HTTP_404_NOT_FOUND)
+        return piece
 
-class PieceDetail(APIView):
     def get_object(self, isbn):
         try:
             return Piece.objects.get(isbn=isbn)
         except Piece.DoesNotExist:
             return None
 
-    def get(self, request, isbn):
-        piece = self.get_object(isbn)
-        if piece:
+    def get(self, request, isbn=None):
+        if isbn or request.data.get('isbn'):
+            piece = self.to_retrieve(request, isbn)
             serializer = PieceSerializer(piece)
-            return Response(serializer.data)
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request, isbn):
-        piece = self.get_object(isbn)
-        if piece:
-            serializer = PieceSerializer(piece, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request, isbn):
-        piece = self.get_object(isbn)
-        if piece:
-            piece.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-class ChapterList(APIView):
-    def get(self, request):
-        chapters = Chapter.objects.all()
-        serializer = ChapterSerializer(chapters, many=True)
-        return Response(serializer.data)
+        else:
+            piece = Piece.objects.all()
+            serializer = PieceSerializer(piece, many=True)
+        return Response(serializer.data,  status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = ChapterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = PieceSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, isbn=None):
+        piece = self.to_retrieve(request, isbn)
+        serializer = PieceSerializer(piece, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data)
+
+    def delete(self, request, isbn=None):
+        piece = self.to_retrieve(request, isbn)
+        piece.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ChapterDetail(APIView):
-    def get_object(self, chapter_id):
+class ChapterView(APIView):
+    def to_retrieve(self, request=None, id=None):
+        if id:
+            piece = self.get_object(id)
+        else:
+            piece = self.get_object(request.data.get('id'))
+
+        if not piece:
+            return Response({"detail": "Piece not found"}, status=status.HTTP_404_NOT_FOUND)
+        return piece
+
+    def get_object(self, id):
         try:
-            return Chapter.objects.get(pk=chapter_id)
+            return Chapter.objects.get(id=id)
         except Chapter.DoesNotExist:
             return None
 
-    def get(self, request, chapter_id):
-        chapter = self.get_object(chapter_id)
-        if chapter is not None:
+    def get(self, request, id=None):
+        if id or request.data.get('id'):
+            chapter = self.to_retrieve(request, id)
             serializer = ChapterSerializer(chapter)
-            return Response(serializer.data)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            chapter = Chapter.objects.all()
+            serializer = ChapterSerializer(chapter, many=True)
+        return Response(serializer.data,  status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = ChapterSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, chapter_id):
         chapter = self.get_object(chapter_id)
-        if chapter is not None:
-            serializer = ChapterSerializer(chapter, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
+        serializer = ChapterSerializer(
+            chapter, data=request.data, partial=True)
+        if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer.save()
+        return Response(serializer.data)
 
     def delete(self, request, chapter_id):
 
-        chapter = self.get_object(chapter_id)
-        if chapter is not None:
-            chapter.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        chapter = self.to_retrieve(request, chapter_id)
+        chapter.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class PageListCreateAPIView(APIView):
+class PageView(APIView):
     def get(self, request):
         pages = Page.objects.all()
         serializer = PageSerializer(pages, many=True)
@@ -252,7 +258,7 @@ class PageListCreateAPIView(APIView):
         return Response({'error': 'Invalid content_type'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PieceAnotationAPIView(APIView):
+class PieceAnotationView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, isbn=None):

@@ -1,17 +1,11 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from .views import (
     GenreView,
     PublisherView,
-    PieceList,
-    PieceDetail,
-
-    ChapterList,
-    ChapterDetail,
-
-    PageListCreateAPIView,
-
-    PieceAnotationAPIView
+    PieceView,
+    ChapterView,
+    PageView,
+    PieceAnotationView
 )
 
 
@@ -21,13 +15,13 @@ urlpatterns = [
     path('publisher/', PublisherView.as_view(), name='publisher'),
     path('publisher/<int:id>/',
          PublisherView.as_view(), name='publisher-detail'),
-    path('pieces/', PieceList.as_view(), name='piece-list'),
-    path('pieces/<str:isbn>/', PieceDetail.as_view(), name='piece-detail'),
-    path('chapter/', ChapterList.as_view(), name='chapter-list'),
+    path('pieces/', PieceView.as_view(), name='piece-list'),
+    path('pieces/<str:isbn>/', PieceView.as_view(), name='piece-detail'),
+    path('chapter/', ChapterView.as_view(), name='chapter-list'),
     path('chapter/<int:chapter_id>/',
-         ChapterDetail.as_view(), name='chapter-detail'),
-    path('pages/', PageListCreateAPIView.as_view(), name='page-list-create'),
-    path('anotation/', PieceAnotationAPIView.as_view(), name='piece-anotation'),
-    path('anotation/<str:isbn>/', PieceAnotationAPIView.as_view(),
+         ChapterView.as_view(), name='chapter-detail'),
+    path('pages/', PageView.as_view(), name='page-list-create'),
+    path('anotation/', PieceAnotationView.as_view(), name='piece-anotation'),
+    path('anotation/<str:isbn>/', PieceAnotationView.as_view(),
          name='pxiece-anotation'),
 ]
