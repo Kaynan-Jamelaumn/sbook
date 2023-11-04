@@ -9,8 +9,8 @@ class CustomUser(AbstractUser):
     bio = models.TextField(null=True, blank=True)
 
     SEX_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
     ]
 
     GENDER_CHOICES = [
@@ -24,7 +24,7 @@ class CustomUser(AbstractUser):
         ('Heavenly Demon', 'Heavenly Demon'),
     ]
     sex = models.CharField(
-        max_length=1, choices=SEX_CHOICES, null=True, blank=True)
+        max_length=6, choices=SEX_CHOICES, null=True, blank=True)
     gender = models.CharField(
         max_length=30, choices=GENDER_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -53,8 +53,8 @@ class Author(models.Model):
     bio = models.TextField(null=True, blank=True, max_length=3000)
 
     SEX_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
     ]
 
     GENDER_CHOICES = [
@@ -68,7 +68,7 @@ class Author(models.Model):
         ('Heavenly Demon', 'Heavenly Demon'),
     ]
     sex = models.CharField(
-        max_length=1, choices=SEX_CHOICES, null=True, blank=True)
+        max_length=6, choices=SEX_CHOICES, null=True, blank=True)
     gender = models.CharField(
         max_length=30, choices=GENDER_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

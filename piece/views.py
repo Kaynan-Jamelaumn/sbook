@@ -13,221 +13,188 @@ class IsAdminOrReadOnly(BasePermission):
         return request.user and request.user.is_staff
 
 
-class GenreView(APIView):
-    def is_allowed(self, request):
+class BaseView(APIView):
+    def __init__(self, model, param_name, serializer):
+        self.__model = model
+        self.__param_name = param_name
+        self.__serializer = serializer
+
+    @property
+    def model(self):
+        return self.__model
+
+    @model.setter
+    def model(self, value):
+        self.__model = value
+
+    @property
+    def param_name(self):
+        return self.__param_name
+
+    @param_name.setter
+    def param_name(self, value):
+        self.__param_name = value
+
+    @property
+    def serializer(self):
+        return self.__serializer
+
+    @serializer.setter
+    def serializer(self, value):
+        self.__serializer = value
+
+    def is_allowed(self, request, permission_type=None):
         if not request.user.is_staff:
+            if permission_type:
+                return Response({f"detail": "You do not have the necessary permission to {permission_type} an/a {self.model}"}, status=status.HTTP_403_FORBIDDEN)
             return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
 
-    def to_retrieve(self, request=None, name=None):
+    def check_obj(self, obj):
+        if not obj:
+            return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if name:
-            genre = self.get_object(name)
+    def to_retrieve(self, request=None, pk=None):
+        if pk:
+            obj = self.get_object(pk)
+            self.check_obj(obj)
+            serializer = self.__serializer(data=request.data)
+            serializer.is_valid()
+        elif request.data.get(self.param_name):
+            obj = self.get_object(request.data.get(self.__param_name))
+            self.check_obj(obj)
+            serializer = self.__serializer(data=request.data)
         else:
-            genre = self.get_object(request.data.get('name'))
+            serializer = self.__serializer(
+                data=self.model.objects.all(), many=True)
+            serializer.is_valid()
+        return serializer
 
-        if not genre:
-            return Response({"detail": "Genre not found"}, status=status.HTTP_404_NOT_FOUND)
-        return genre
-
-    def get_object(self, name):
-        try:
-            return Genre.objects.get(name=name)
-        except Genre.DoesNotExist:
-            return None
-
-    def get(self, request, name=None):
-        if name or request.data.get('name'):
-            self.to_retrieve(request, name)
-            serializer = GenreSerializer(genre)
+    def get_object(self, pk, request=None):
+        if not request:
+            try:
+                return self.model.objects.get(**{self.__param_name: pk})
+            except Exception:
+                return None
+        if pk:
+            obj = self.model.objects.get(**{self.__param_name: pk})
         else:
-            genre = Genre.objects.all()
-            serializer = GenreSerializer(genre, many=True)
+            obj = self.model.objects.get(
+                **{self.__param_name: request.data.get(self.__param_name)})
+        if obj:
+            return obj
+        return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, pk=None):
+        serializer = self.to_retrieve(request, pk)
         return Response(serializer.data)
 
-    def post(self, request):
-        self.is_allowed(self, request)
-        serializer = GenreSerializer(data=request.data)
+    def post(self, request, allowed=False):
+        if not allowed:
+            self.is_allowed(request)
+        elif request.user.is_authenticated:
+            return Response({"detail": f"You must be logged in to post a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
+        serializer = self.serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, name=None):
-        self.is_allowed(self, request)
-        genre = self.to_retrieve(request, name)
-
-        serializer = GenreSerializer(genre, data=request.data, partial=True)
+    def put(self, request, pk=None, allowed=False):
+        if not allowed:
+            self.is_allowed(request)
+        elif request.user.is_authenticated:
+            return Response({"detail": f"You must be logged in to edit a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
+        obj = self.get_object(pk, request)
+        serializer = self.serializer(obj, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, name=None):
-        self.is_allowed(self, request)
-        genre = self.to_retrieve(request, name)
+    def delete(self, request, pk=None, allowed=False):
+        if not allowed:
+            self.is_allowed(request)
+        elif request.user.is_authenticated:
+            return Response({"detail": f"You must be logged in to delete a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
+        obj = self.get_object(pk, request)
+        obj.delete()
+        return Response({"detail": f"{self.model.__name__} deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
-        genre.delete()
-        return Response({"detail": "Genre deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
+class GenreView(BaseView):
+    def __init__(self, model=Genre, param_name="name", serializer=GenreSerializer):
+        super().__init__(model, param_name, serializer)
 
-class PublisherView(APIView):
-    def is_allowed(self, request):
-        if not request.user.is_staff:
-            return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
-
-    def to_retrieve(self, request=None, id=None):
-        if id:
-            publisher = self.get_object(id)
-        else:
-            publisher = self.get_object(request.data.get('id'))
-
-        if not publisher:
-            return Response({"detail": "Publisher not found"}, status=status.HTTP_404_NOT_FOUND)
-        return publisher
-
-    def get_object(self, id):
-        try:
-            return Publisher.objects.get(pk=id)
-        except Publisher.DoesNotExist:
-            return None
-
-    def get(self, request, id=None):
-        if id or request.data.get('id'):
-            publisher = self.to_retrieve(request, id)
-            serializer = PublisherSerializer(publisher)
-        else:
-            publisher = Publisher.objects.all()
-            serializer = PublisherSerializer(publisher, many=True)
-        return Response(serializer.data,  status=status.HTTP_200_OK)
+    def get(self, request, pk=None):
+        return super().get(request, pk)
 
     def post(self, request):
-        self.is_allowed(self, request)
-        serializer = PublisherSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return super().post(request)
 
-    def put(self, request, id=None):
-        self.is_allowed(self, request)
-        publisher = self.to_retrieve(request, id)
+    def put(self, request, pk=None):
+        return super().put(request, pk)
 
-        serializer = PublisherSerializer(
-            publisher, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, id):
-        self.is_allowed(self, request)
-        publisher = self.to_retrieve(request, id)
-        publisher.delete()
-        return Response({"detail": "Publisher deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk=None):
+        return super().delete(request, pk)
 
 
-class PieceView(APIView):
+class PublisherView(BaseView):
+    def __init__(self, model=Publisher, param_name="id", serializer=PublisherSerializer):
+        super().__init__(model, param_name, serializer)
 
-    def to_retrieve(self, request=None, isbn=None):
-        if isbn:
-            piece = self.get_object(isbn)
-        else:
-            piece = self.get_object(request.data.get('isbn'))
-
-        if not piece:
-            return Response({"detail": "Piece not found"}, status=status.HTTP_404_NOT_FOUND)
-        return piece
-
-    def get_object(self, isbn):
-        try:
-            return Piece.objects.get(isbn=isbn)
-        except Piece.DoesNotExist:
-            return None
-
-    def get(self, request, isbn=None):
-        if isbn or request.data.get('isbn'):
-            piece = self.to_retrieve(request, isbn)
-            serializer = PieceSerializer(piece)
-        else:
-            piece = Piece.objects.all()
-            serializer = PieceSerializer(piece, many=True)
-        return Response(serializer.data,  status=status.HTTP_200_OK)
+    def get(self, request, pk=None):
+        return super().get(request, pk)
 
     def post(self, request):
-        serializer = PieceSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return super().post(request)
 
-    def put(self, request, isbn=None):
-        piece = self.to_retrieve(request, isbn)
-        serializer = PieceSerializer(piece, data=request.data, partial=True)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(serializer.data)
+    def put(self, request, pk=None):
+        return super().put(request, pk)
 
-    def delete(self, request, isbn=None):
-        piece = self.to_retrieve(request, isbn)
-        piece.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk=None):
+        return super().delete(request, pk)
+
+
+class PieceView(BaseView):
+    def __init__(self, model=Piece, param_name="isbn", serializer=PieceSerializer):
+        super().__init__(model, param_name, serializer)
+
+    def get(self, request, pk=None):
+        return super().get(request, pk)
+
+    def post(self, request):
+        return super().post(request, True)
+
+    def put(self, request, pk=None):
+        return super().put(request, pk, True)
+
+    def delete(self, request, pk=None):
+        return super().delete(request, True)
 
 
 class ChapterView(APIView):
-    def to_retrieve(self, request=None, id=None):
-        if id:
-            piece = self.get_object(id)
-        else:
-            piece = self.get_object(request.data.get('id'))
+    def __init__(self, model=Chapter, param_name="id", serializer=ChapterSerializer):
+        super().__init__(model, param_name, serializer)
 
-        if not piece:
-            return Response({"detail": "Piece not found"}, status=status.HTTP_404_NOT_FOUND)
-        return piece
-
-    def get_object(self, id):
-        try:
-            return Chapter.objects.get(id=id)
-        except Chapter.DoesNotExist:
-            return None
-
-    def get(self, request, id=None):
-        if id or request.data.get('id'):
-            chapter = self.to_retrieve(request, id)
-            serializer = ChapterSerializer(chapter)
-        else:
-            chapter = Chapter.objects.all()
-            serializer = ChapterSerializer(chapter, many=True)
-        return Response(serializer.data,  status=status.HTTP_200_OK)
+    def get(self, request, pk=None):
+        return super().get(request, pk)
 
     def post(self, request):
-        serializer = ChapterSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return super().post(request, True)
 
-    def put(self, request, chapter_id):
-        chapter = self.get_object(chapter_id)
-        serializer = ChapterSerializer(
-            chapter, data=request.data, partial=True)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(serializer.data)
+    def put(self, request, pk=None):
+        return super().put(request, pk, True)
 
-    def delete(self, request, chapter_id):
-
-        chapter = self.to_retrieve(request, chapter_id)
-        chapter.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk=None):
+        return super().delete(request, True)
 
 
 class PageView(APIView):
-    def get(self, request):
-        pages = Page.objects.all()
-        serializer = PageSerializer(pages, many=True)
-        return Response(serializer.data)
+    def __init__(self, model=Page, param_name="id", serializer=PageSerializer):
+        super().__init__(model, param_name, serializer)
+
+    def get(self, request, pk=None):
+        return super().get(request, pk)
 
     def post(self, request):
         data = request.data
@@ -257,42 +224,50 @@ class PageView(APIView):
 
         return Response({'error': 'Invalid content_type'}, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, pk=None):
+        page_obj = self.get_object(pk, request)
+
+        if not page_obj:
+            return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Determine the content type from the request data
+        content_type = request.data.get('content_type')
+
+        # Handle the update according to the content type
+        if content_type == 'text':
+            text_content_serializer = TextContentSerializer(
+                page_obj.content, data=request.data['content']['text_content'], partial=True)
+            if text_content_serializer.is_valid():
+                text_content_serializer.save()
+                return Response(PageSerializer(page_obj).data, status=status.HTTP_200_OK)
+            return Response(text_content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        elif content_type == 'image':
+            image_content_serializer = ImageContentSerializer(
+                page_obj.content, data=request.data['content']['image_content'], partial=True)
+            if image_content_serializer.is_valid():
+                image_content_serializer.save()
+                return Response(PageSerializer(page_obj).data, status=status.HTTP_200_OK)
+            return Response(image_content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'error': 'Invalid content_type'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk=None):
+        return super().delete(request, True)
+
 
 class PieceAnotationView(APIView):
-    permission_classes = [IsAuthenticated]
+    def __init__(self, model=PieceAnotation, param_name="id", serializer=PieceAnotationSerializer):
+        super().__init__(model, param_name, serializer)
 
-    def get(self, request, isbn=None):
-        if isbn:
-            piece = PieceAnotation.objects.filter(piece__isbn=isbn)
-        else:
-            piece = PieceAnotation.objects.all()
-        serializer = PieceAnotationSerializer(piece, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, pk=None):
+        return super().get(request, pk)
 
     def post(self, request):
-        isbn = request.data.get('isbn')
-        piece = Piece.objects.get(isbn=isbn)
-        serializer = PieceAnotationSerializer(data=request.data)
-        if serializer.is_valid() and piece:
-            serializer.save(user=request.user, piece=piece)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return super().post(request, True)
 
-    def delete(self, request):
-        piece_anotation_id = request.data.get('anotation')
-        piece_anotation = PieceAnotation.objects.get(id=piece_anotation_id)
-        if request.user == piece_anotation.user or request.user.is_staff:
-            piece_anotation.delete()
-            return Response({"detail": "Piece deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-        return Response({"detail": "You do not have permission to delete this piece"}, status=status.HTTP_403_FORBIDDEN)
+    def put(self, request, pk=None):
+        return super().put(request, pk, True)
 
-    def put(self, request):
-        piece_anotation_id = request.data.get('anotation')
-        piece_anotation = PieceAnotation.objects.get(id=piece_anotation_id)
-        if piece_anotation and (request.user == piece_anotation.user or request.user.is_staff):
-            serializer = PieceAnotationSerializer(
-                piece_anotation, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk=None):
+        return super().delete(request, True)
