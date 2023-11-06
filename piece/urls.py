@@ -3,6 +3,7 @@ from .views import (
     GenreView,
     PublisherView,
     PieceView,
+    PieceFilterView,
     ChapterView,
     PageView,
     PieceAnotationView
@@ -10,18 +11,20 @@ from .views import (
 
 
 urlpatterns = [
-    path('genre/<str:name>/', GenreView.as_view(), name='genre-detail'),
+    path('genre/<str:pk>/', GenreView.as_view()),
     path('genre/', GenreView.as_view(), name='genre'),
     path('publisher/', PublisherView.as_view(), name='publisher'),
-    path('publisher/<int:id>/',
+    path('publisher/<str:pk>/',
          PublisherView.as_view(), name='publisher-detail'),
-    path('pieces/', PieceView.as_view(), name='piece-list'),
-    path('pieces/<str:isbn>/', PieceView.as_view(), name='piece-detail'),
+    path('piece/', PieceView.as_view(), name='piece-list'),
+    path('piece/<str:pk>/', PieceView.as_view(), name='piece-detail'),
+    path('piece/filter/<str:pk>/',
+         PieceFilterView.as_view(), name='piece-filter'),
     path('chapter/', ChapterView.as_view(), name='chapter-list'),
-    path('chapter/<int:chapter_id>/',
+    path('chapter/<str:pk>/',
          ChapterView.as_view(), name='chapter-detail'),
-    path('pages/', PageView.as_view(), name='page-list-create'),
+    path('page/', PageView.as_view(), name='page-list-create'),
     path('anotation/', PieceAnotationView.as_view(), name='piece-anotation'),
-    path('anotation/<str:isbn>/', PieceAnotationView.as_view(),
+    path('anotation/<str:pk>/', PieceAnotationView.as_view(),
          name='pxiece-anotation'),
 ]

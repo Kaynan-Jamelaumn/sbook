@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation
-from main.models import CustomUser, Author
+
 
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
         fields = '__all__'
+
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,26 +20,20 @@ class PieceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-            author = data.get('author')
-            custom_user = data.get('custom_user')
+        author = data.get('author')
+        custom_user = data.get('custom_user')
 
-            if not author and not custom_user:
-                raise serializers.ValidationError("Pelo menos um autor ou usuário personalizado deve ser especificado.")
+        if not author and not custom_user:
+            raise serializers.ValidationError(
+                "Pelo menos um autor ou usuário personalizado deve ser especificado.")
 
-            return data
+        return data
+
+
 class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
         fields = '__all__'
-
-
-
-
-
-
-
-
-
 
 
 class TextContentSerializer(serializers.ModelSerializer):
@@ -46,14 +41,17 @@ class TextContentSerializer(serializers.ModelSerializer):
         model = TextContent
         fields = '__all__'
 
+
 class ImageContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageContent
         fields = '__all__'
 
+
 class PageContentSerializer(serializers.Serializer):
     text_content = TextContentSerializer(required=False)
     image_content = ImageContentSerializer(required=False)
+
 
 class PageSerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
@@ -70,7 +68,6 @@ class PageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Page
         fields = '__all__'
-
 
 
 class PieceAnotationSerializer(serializers.ModelSerializer):

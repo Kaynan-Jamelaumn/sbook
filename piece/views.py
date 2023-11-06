@@ -53,40 +53,55 @@ class BaseView(APIView):
         if not obj:
             return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    def to_retrieve(self, request=None, pk=None):
+    def to_retrieve(self, request=None, pk=None, many=False):
+
         if pk:
-            obj = self.get_object(pk)
-            self.check_obj(obj)
-            serializer = self.__serializer(data=request.data)
-            serializer.is_valid()
+            if many == True:
+                obj = self.get_object(pk=pk, many=True)
+                self.check_obj(obj)
+                serializer = self.serializer(obj,  many=True)
+            else:
+                obj = self.get_object(pk)
+                self.check_obj(obj)
+                serializer = self.serializer(obj)
         elif request.data.get(self.param_name):
-            obj = self.get_object(request.data.get(self.__param_name))
-            self.check_obj(obj)
-            serializer = self.__serializer(data=request.data)
+            if many == True:
+                obj = self.get_object(request, many=True)
+                self.check_obj(obj)
+                serializer = self.__serializer(obj, many=True)
+            else:
+                obj = self.get_object(request)
+                self.check_obj(obj)
+                serializer = self.__serializer(obj)
+
         else:
             serializer = self.__serializer(
                 data=self.model.objects.all(), many=True)
             serializer.is_valid()
         return serializer
 
-    def get_object(self, pk, request=None):
-        if not request:
-            try:
-                return self.model.objects.get(**{self.__param_name: pk})
-            except Exception:
-                return None
-        if pk:
-            obj = self.model.objects.get(**{self.__param_name: pk})
+    def get_object(self, pk, request=None, many=False):
+        if many == True:
+            if pk:
+                # Retorna o primeiro objeto correspondente.__param_name: pk})
+                obj = self.model.objects.filter(**{self.__param_name: pk})
+            else:
+                obj = self.model.objects.filter(
+                    **{self.__param_name: request.data.get(self.__param_name)})
         else:
-            obj = self.model.objects.get(
-                **{self.__param_name: request.data.get(self.__param_name)})
+            if pk:
+                # Retorna o primeiro objeto correspondente.__param_name: pk})
+                obj = self.model.objects.get(**{self.__param_name: pk})
+            else:
+                obj = self.model.objects.get(
+                    **{self.__param_name: request.data.get(self.__param_name)})
         if obj:
             return obj
         return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, pk=None):
         serializer = self.to_retrieve(request, pk)
-        return Response(serializer.data)
+        return Response(serializer.data,  status=status.HTTP_200_OK)
 
     def post(self, request, allowed=False):
         if not allowed:
@@ -105,6 +120,7 @@ class BaseView(APIView):
         elif request.user.is_authenticated:
             return Response({"detail": f"You must be logged in to edit a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)
+        print("teste", obj)
         serializer = self.serializer(obj, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -172,7 +188,15 @@ class PieceView(BaseView):
         return super().delete(request, True)
 
 
-class ChapterView(APIView):
+class PieceFilterView(BaseView):
+    def __init__(self, model=Piece, param_name="status", serializer=PieceSerializer):
+        super().__init__(model, param_name, serializer)
+
+    def get(self, request, pk=None):
+        return super().get(request, pk)
+
+
+class ChapterView(BaseView):
     def __init__(self, model=Chapter, param_name="id", serializer=ChapterSerializer):
         super().__init__(model, param_name, serializer)
 
@@ -189,7 +213,7 @@ class ChapterView(APIView):
         return super().delete(request, True)
 
 
-class PageView(APIView):
+class PageView(BaseView):
     def __init__(self, model=Page, param_name="id", serializer=PageSerializer):
         super().__init__(model, param_name, serializer)
 
@@ -256,7 +280,7 @@ class PageView(APIView):
         return super().delete(request, True)
 
 
-class PieceAnotationView(APIView):
+class PieceAnotationView(BaseView):
     def __init__(self, model=PieceAnotation, param_name="id", serializer=PieceAnotationSerializer):
         super().__init__(model, param_name, serializer)
 

@@ -2,7 +2,6 @@ from django.db import models
 from main.models import Author, CustomUser
 from polymorphic.models import PolymorphicModel
 from django.db.models import TextField, ImageField
-from django.core.exceptions import ValidationError
 
 
 class Publisher(models.Model):
