@@ -149,8 +149,8 @@ class GenreView(BaseView):
     def post(self, request):
         return super().post(request)
 
-    def put(self, request, pk=None):
-        return super().put(request, pk)
+    def put(self, request):
+        return Response({"detail": f"Not Allowed"}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk=None):
         return super().delete(request, pk)

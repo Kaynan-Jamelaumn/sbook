@@ -2,6 +2,7 @@
 
 from django.urls import path
 from .views import (
+    CurrentUserView,
     CustomUserView,
     CustomUserLogin,
     CustomUserLogout,
@@ -9,6 +10,7 @@ from .views import (
 
 
 urlpatterns = [
+    path('user/current', CurrentUserView.as_view(), name='current-user'),
     path('user/', CustomUserView.as_view(), name='user'),
     path('user/logout/', CustomUserLogout.as_view(), name='user-logout'),
     path('user/login/', CustomUserLogin.as_view(), name='user-login'),

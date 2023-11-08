@@ -11,18 +11,18 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
 
 
-class CustomUserView(APIView):
+class CurrentUserView(APIView):
     permission_classes = [AllowAny]
 
-    def to_retrieve(self, request=None, username=None):
-        if username:
-            user = self.get_object(username)
-        else:
-            user = self.get_object(request.data.get('username'))
+    def get(self, request):
+        if request.user.is_authenticated:
+            serializer = CustomUserListSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if not user:
-            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        return user
+
+class CustomUserView(APIView):
+    permission_classes = [AllowAny]
 
     def required_fields(self, request):
         if not request.data.get("first_name"):
