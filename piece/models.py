@@ -155,3 +155,9 @@ class PieceAnotation(models.Model):
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     piece = models.ForeignKey(Piece, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'piece'], name='unique_piece_anotation_for_user')
+        ]
