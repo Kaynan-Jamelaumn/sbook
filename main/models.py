@@ -31,7 +31,7 @@ class CustomUser(AbstractUser):
     updated_at = models.DateTimeField(auto_now=True)
 
     pseudo_name = models.CharField(
-        max_length=150, null=True, blank=True, unique=True)
+        max_length=150, null=False, blank=False, unique=True)
     groups = models.ManyToManyField(
         'auth.Group', related_name='custom_users', blank=True)
     user_permissions = models.ManyToManyField(
@@ -42,7 +42,6 @@ class CustomUser(AbstractUser):
 
 
 class Author(models.Model):
-
     first_name = models.CharField(max_length=150, null=True, blank=True)
     last_name = models.CharField(max_length=150, null=True, blank=True)
 

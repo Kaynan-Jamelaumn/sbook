@@ -2,15 +2,15 @@ from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent,
 from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceAnotationSerializer
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, BasePermission
+# from rest_framework.permissions import IsAdminUser, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 
 
-class IsAdminOrReadOnly(BasePermission):
-    def has_permission(self, request, view):
-        if request.method in ('GET', 'HEAD', 'OPTIONS'):
-            return True
-        return request.user and request.user.is_staff
+# class IsAdminOrReadOnly(BasePermission):
+#     def has_permission(self, request, view):
+#         if request.method in ('GET', 'HEAD', 'OPTIONS'):
+#             return True
+#         return request.user and request.user.is_staff
 
 
 class BaseView(APIView):

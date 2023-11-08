@@ -11,7 +11,7 @@ from .views import (
 
 
 urlpatterns = [
-    path('genre/<str:pk>/', GenreView.as_view()),
+    path('genre/<str:pk>/', GenreView.as_view(), name='genre-detail'),
     path('genre/', GenreView.as_view(), name='genre'),
     path('publisher/', PublisherView.as_view(), name='publisher'),
     path('publisher/<str:pk>/',
@@ -20,10 +20,10 @@ urlpatterns = [
     path('piece/<str:pk>/', PieceView.as_view(), name='piece-detail'),
     path('piece/filter/<str:pk>/',
          PieceFilterView.as_view(), name='piece-filter'),
-    path('chapter/', ChapterView.as_view(), name='chapter-list'),
+    path('chapter/', ChapterView.as_view(), name='chapter'),
     path('chapter/<str:pk>/',
          ChapterView.as_view(), name='chapter-detail'),
-    path('page/', PageView.as_view(), name='page-list-create'),
+    path('page/', PageView.as_view(), name='page'),
     path('anotation/', PieceAnotationView.as_view(), name='piece-anotation'),
     path('anotation/<str:pk>/', PieceAnotationView.as_view(),
          name='pxiece-anotation'),
