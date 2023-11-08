@@ -12,6 +12,7 @@ from django.contrib.auth.hashers import make_password
 
 
 class CustomUserView(APIView):
+    permission_classes = [AllowAny]
 
     def to_retrieve(self, request=None, username=None):
         if username:
@@ -109,6 +110,8 @@ class CustomUserLogout(APIView):
 
 
 class AuthorView(APIView):
+    permission_classes = [AllowAny]
+
     def is_allowed(self, request):
         if not request.user.is_staff:
             return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)

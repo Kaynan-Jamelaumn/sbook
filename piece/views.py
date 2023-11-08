@@ -2,7 +2,7 @@ from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent,
 from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceAnotationSerializer
 from rest_framework import status
 from rest_framework.views import APIView
-# from rest_framework.permissions import IsAdminUser, IsAuthenticated, BasePermission
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 
 
@@ -14,6 +14,8 @@ from rest_framework.response import Response
 
 
 class BaseView(APIView):
+    permission_classes = [AllowAny]
+
     def __init__(self, model, param_name, serializer):
         self.__model = model
         self.__param_name = param_name
