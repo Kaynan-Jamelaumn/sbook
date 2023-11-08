@@ -24,6 +24,16 @@ class CurrentUserView(APIView):
 class CustomUserView(APIView):
     permission_classes = [AllowAny]
 
+    def to_retrieve(self, request=None, username=None):
+        if username:
+            user = self.get_object(username)
+        else:
+            user = self.get_object(request.data.get('username'))
+
+        if not user:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return user
+
     def required_fields(self, request):
         if not request.data.get("first_name"):
             return Response({"detail": "First Name field is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -52,6 +62,7 @@ class CustomUserView(APIView):
     def post(self, request):
 
         self.required_fields(request)
+        request.data['password'] = make_password(request.data['password'])
 
         serializer = CustomUserSerializer(data=request.data)
         if not serializer.is_valid():
