@@ -48,12 +48,12 @@ class BaseView(APIView):
     def is_allowed(self, request, permission_type=None):
         if not request.user.is_staff:
             if permission_type:
-                return Response({f"detail": "You do not have the necessary permission to {permission_type} an/a {self.model}"}, status=status.HTTP_403_FORBIDDEN)
-            return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
+                return Response({f"error": "You do not have the necessary permission to {permission_type} an/a {self.model}"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
 
     def check_obj(self, obj):
         if not obj:
-            return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def to_retrieve(self, request=None, pk=None, many=False):
 
@@ -99,7 +99,7 @@ class BaseView(APIView):
                     **{self.__param_name: request.data.get(self.__param_name)})
         if obj:
             return obj
-        return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, pk=None):
         serializer = self.to_retrieve(request, pk)
@@ -109,7 +109,7 @@ class BaseView(APIView):
         if not allowed:
             self.is_allowed(request)
         elif request.user.is_authenticated:
-            return Response({"detail": f"You must be logged in to post a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": f"You must be logged in to post a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         serializer = self.serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -120,7 +120,7 @@ class BaseView(APIView):
         if not allowed:
             self.is_allowed(request)
         elif request.user.is_authenticated:
-            return Response({"detail": f"You must be logged in to edit a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": f"You must be logged in to edit a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)
         print("teste", obj)
         serializer = self.serializer(obj, data=request.data, partial=True)
@@ -133,7 +133,7 @@ class BaseView(APIView):
         if not allowed:
             self.is_allowed(request)
         elif request.user.is_authenticated:
-            return Response({"detail": f"You must be logged in to delete a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": f"You must be logged in to delete a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)
         obj.delete()
         return Response({"detail": f"{self.model.__name__} deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
@@ -150,7 +150,7 @@ class GenreView(BaseView):
         return super().post(request)
 
     def put(self, request):
-        return Response({"detail": f"Not Allowed"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"error": f"Not Allowed"}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk=None):
         return super().delete(request, pk)
@@ -254,7 +254,7 @@ class PageView(BaseView):
         page_obj = self.get_object(pk, request)
 
         if not page_obj:
-            return Response({"detail": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Determine the content type from the request data
         content_type = request.data.get('content_type')

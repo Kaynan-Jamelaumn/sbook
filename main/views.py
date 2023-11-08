@@ -18,7 +18,7 @@ class CurrentUserView(APIView):
         if request.user.is_authenticated:
             serializer = CurrentCustomUserSerializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": None}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CustomUserView(APIView):
@@ -31,14 +31,14 @@ class CustomUserView(APIView):
             user = self.get_object(request.data.get('username'))
 
         if not user:
-            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": None}, status=status.HTTP_404_NOT_FOUND)
         return user
 
     def required_fields(self, request):
         if not request.data.get("first_name"):
-            return Response({"detail": "First Name field is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "First Name field is required"}, status=status.HTTP_400_BAD_REQUEST)
         if not request.data.get("email"):
-            return Response({"detail": "Email field is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Email field is required"}, status=status.HTTP_400_BAD_REQUEST)
 
     def get_object(self, username):
         try:
@@ -50,7 +50,7 @@ class CustomUserView(APIView):
         if username:
             user = self.get_object(username)
             if user is None:
-                return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"detail": None}, status=status.HTTP_404_NOT_FOUND)
             serializer = CustomUserListSerializer(
                 user)
         else:
@@ -73,7 +73,7 @@ class CustomUserView(APIView):
     def put(self, request, username=None):
         user = self.to_retrieve(request, username)
         if request.user != user and not request.user.is_staff:
-            return Response({"detail": "You do not have permission to edit this user"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "You do not have permission to edit this user"}, status=status.HTTP_403_FORBIDDEN)
 
         if 'password' in request.data:
             request.data['password'] = make_password(
@@ -91,10 +91,10 @@ class CustomUserView(APIView):
     def delete(self, request, username=None):
         user = self.to_retrieve(request, username)
         if request.user != user and not request.user.is_staff:
-            return Response({"detail": "You do not have permission to delete this user"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "You do not have permission to delete this user"}, status=status.HTTP_403_FORBIDDEN)
         user.is_active = False
         user.save()
-        return Response({"detail": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"error": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class CustomUserLogin(APIView):
@@ -109,7 +109,7 @@ class CustomUserLogin(APIView):
             login(request, user)
             return Response({'detail': 'Logged in successfully'})
         else:
-            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CustomUserLogout(APIView):
@@ -125,7 +125,7 @@ class AuthorView(APIView):
 
     def is_allowed(self, request):
         if not request.user.is_staff:
-            return Response({"detail": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
 
     def to_retrieve(self, request=None, id=None):
         if id:
@@ -134,7 +134,7 @@ class AuthorView(APIView):
             author = self.get_object(request.data.get('id'))
 
         if not author:
-            return Response({"detail": "Publisher not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": None}, status=status.HTTP_404_NOT_FOUND)
         return author
 
     def get_object(self, id):
@@ -147,7 +147,7 @@ class AuthorView(APIView):
         if id:
             user = self.get_object(id)
             if user is None:
-                return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": None}, status=status.HTTP_404_NOT_FOUND)
             serializer = AuthorListSerializer(user)
         else:
             user = Author.objects.all()
