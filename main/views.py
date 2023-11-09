@@ -104,7 +104,8 @@ class CustomUserLogin(APIView):
 
         if user is not None:
             login(request, user)
-            return Response({'user': CurrentCustomUserSerializer(request.user)})
+            serializer = CurrentCustomUserSerializer(request.user)
+            return Response({'user': serializer.data})
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
