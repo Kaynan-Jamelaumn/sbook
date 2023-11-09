@@ -12,7 +12,6 @@ from django.contrib.auth.hashers import make_password
 
 
 class CurrentUserView(APIView):
-    permission_classes = [AllowAny]
 
     def get(self, request):
         if request.user.is_authenticated:
@@ -22,7 +21,6 @@ class CurrentUserView(APIView):
 
 
 class CustomUserView(APIView):
-    permission_classes = [AllowAny]
 
     def to_retrieve(self, request=None, username=None):
         if username:
@@ -98,7 +96,6 @@ class CustomUserView(APIView):
 
 
 class CustomUserLogin(APIView):
-    permission_classes = [AllowAny]
 
     def post(self, request):
         username = request.data.get('username')
@@ -121,7 +118,6 @@ class CustomUserLogout(APIView):
 
 
 class AuthorView(APIView):
-    permission_classes = [AllowAny]
 
     def is_allowed(self, request):
         if not request.user.is_staff:

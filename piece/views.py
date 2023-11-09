@@ -14,7 +14,6 @@ from rest_framework.response import Response
 
 
 class BaseView(APIView):
-    permission_classes = [AllowAny]
 
     def __init__(self, model, param_name, serializer):
         self.__model = model
