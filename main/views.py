@@ -16,7 +16,7 @@ class CurrentUserView(APIView):
     def get(self, request):
         if request.user.is_authenticated:
             serializer = CurrentCustomUserSerializer(request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"user": serializer.data}, status=status.HTTP_200_OK)
         return Response({"user": None}, status=status.HTTP_404_NOT_FOUND)
 
 

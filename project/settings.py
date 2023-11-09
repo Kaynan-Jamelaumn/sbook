@@ -141,11 +141,15 @@ REST_FRAMEWORK = {
 
 }
 AUTH_USER_MODEL = 'main.CustomUser'
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # CORS_ALLOWED_ORIGINS = [
-#     "https://example.com",
-#     "https://sub.example.com",
 #     "http://localhost:3000",
-#     "http://127.0.0.1:9000"
 # ]
