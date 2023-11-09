@@ -106,7 +106,7 @@ class CustomUserLogin(APIView):
             login(request, user)
             return Response({'detail': 'Logged in successfully'})
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': request.user}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CustomUserLogout(APIView):
