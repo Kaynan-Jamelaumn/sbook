@@ -123,13 +123,11 @@ class Comment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     parent_comment = models.ForeignKey(
         'self', null=True, blank=True, on_delete=models.CASCADE)
-    piece = models.ForeignKey(
-        Piece, on_delete=models.CASCADE, related_name='comments', null=True)
+
     chapter = models.ForeignKey(
         Chapter, on_delete=models.CASCADE, related_name='comments', null=True)
     page = models.ForeignKey(
         Page, on_delete=models.CASCADE, related_name='comments', null=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -137,8 +135,7 @@ class Comment(models.Model):
         return f"{self.content} {self.user.username}"
 
 
-class PieceAnotation(models.Model):
-    summary = models.TextField(null=True, blank=True, max_length=3000)
+class PieceStatus(models.Model):
     STATUS_CHOICES = [
         ('Finished', 'Finished'),
         ('Abandoned', 'Abandoned'),
@@ -146,15 +143,28 @@ class PieceAnotation(models.Model):
         ('Paused', 'Paused'),
         ('Hoping to Start', 'Hoping to Start')
     ]
+    RATING_CHOICES = [
+        (0.5, '0.5'),
+        (1.0, '1.0'),
+        (1.5, '1.5'),
+        (2.0, '2.0'),
+        (2.5, '2.5'),
+        (3.0, '3.0'),
+        (3.5, '3.5'),
+        (4.0, '4.0'),
+        (4.5, '4.5'),
+        (5.0, '5.0'),
+    ]
     status = models.CharField(choices=STATUS_CHOICES,
                               max_length=20, null=False, blank=False)
+    ratimg = models.FloatField(choices=RATING_CHOICES)
     summary = models.TextField(null=True, blank=True, max_length=3000)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     piece = models.ForeignKey(Piece, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
