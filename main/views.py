@@ -115,7 +115,7 @@ class CustomUserLogout(APIView):
 
     def get(self, request):
         logout(request)   # Isso encerrará a sessão do usuário
-        return Response({"detail": "Logged out successfully"}, status=status.HTTP_200_OK)
+        return Response({"success": True}, status=status.HTTP_200_OK)
 
 
 class AuthorView(APIView):
