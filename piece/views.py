@@ -332,3 +332,42 @@ class PieceAnotationView(BaseView):
 
     def delete(self, request, pk=None):
         return super().delete(request, True)
+
+
+class PieceStatusByPieceView(APIView):
+    def get(self, request, piece=None):
+        if piece:
+            object = PieceStatus.objects.filter(piece=piece)
+        else:
+            object = PieceStatus.objects.filter(
+                piece=request.data.get('piece'))
+        if object:
+            serializer = PieceStatus(object, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
+
+
+class PieceAnotationContentTypeView(APIView):
+    def get(self, request):
+        if request.data.get('type') == 'chapter':
+            if request.data.get('user'):
+                object = PieceStatus.objects.filter(
+                    user=request.data.get('user'),
+                    piece=request.data.get('chapter'))
+            else:
+                object = PieceStatus.objects.filter(
+                    user=request.user,
+                    piece=request.data.get('chapter'))
+        elif request.data.get('type') == 'page':
+            if request.data.get('user'):
+                object = PieceStatus.objects.filter(
+                    user=request.data.get('user'),
+                    piece=request.data.get('page'))
+            else:
+                object = PieceStatus.objects.filter(
+                    user=request.user,
+                    piece=request.data.get('page'))
+        if object:
+            serializer = PieceStatus(object, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)

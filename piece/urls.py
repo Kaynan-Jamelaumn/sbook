@@ -7,7 +7,9 @@ from .views import (
     ChapterView,
     PageView,
     PieceAnotationView,
-    PieceStatusView
+    PieceAnotationContentTypeView,
+    PieceStatusView,
+    PieceStatusByPieceView,
 )
 
 
@@ -27,8 +29,12 @@ urlpatterns = [
     path('page/', PageView.as_view(), name='page'),
     path('anotation/', PieceAnotationView.as_view(), name='piece-anotation'),
     path('anotation/<str:pk>/', PieceAnotationView.as_view(),
-         name='peiece-anotation'),
+         name='piece-anotation'),
+    path('anotation/piece-user/', PieceAnotationContentTypeView.as_view(),
+         name='piece-anotation-user'),
     path('status/', PieceStatusView.as_view(), name='piece-status'),
     path('status/<str:pk>/', PieceStatusView.as_view(),
          name='piece-status'),
+    path('status/piece-user', PieceStatusByPieceView.as_view(),
+         name='piece-status-user'),
 ]
