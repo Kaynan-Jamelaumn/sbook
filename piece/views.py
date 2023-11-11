@@ -1,8 +1,8 @@
-from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation, PieceStatus
+from .models import Publisher, Genre,  Piece, Chapter, Page,  PieceAnotation, PieceStatus,  PageContent, TextContent, ImageContent, Comment
 from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceStatusSerializer, PieceAnotationSerializer
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, BasePermission
+# from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 
 from django.db.models import Q
@@ -13,40 +13,44 @@ from main.serializers import AuthorListSerializer, CustomUserListSerializer
 #         if request.method in ('GET', 'HEAD', 'OPTIONS'):
 #             return True
 #         return request.user and request.user.is_staff
+from django.http import HttpRequest
+from django.db.models import Model
+from rest_framework.serializers import Serializer
 
 
 class BaseView(APIView):
 
-    def __init__(self, model, param_name, serializer):
+    def __init__(self, model: Model, param_name: str, serializer: Serializer):
         self.__model = model
         self.__param_name = param_name
         self.__serializer = serializer
 
     @property
-    def model(self):
+    def model(self) -> Model:
         return self.__model
 
     @model.setter
-    def model(self, value):
+    def model(self, value: Model):
         self.__model = value
 
     @property
-    def param_name(self):
+    def param_name(self) -> str:
         return self.__param_name
 
     @param_name.setter
-    def param_name(self, value):
+    def param_name(self, value: str):
         self.__param_name = value
 
     @property
-    def serializer(self):
+    def serializer(self) -> Serializer:
         return self.__serializer
 
     @serializer.setter
-    def serializer(self, value):
+    def serializer(self, value: Serializer):
         self.__serializer = value
 
-    def is_allowed(self, request, permission_type=None):
+    def is_allowed(self, request: HttpRequest, permission_type: str = None):
+
         if not request.user.is_staff:
             if permission_type:
                 return Response({f"error": "You do not have the necessary permission to {permission_type} an/a {self.model}"}, status=status.HTTP_403_FORBIDDEN)
@@ -56,7 +60,7 @@ class BaseView(APIView):
         if not obj:
             return Response({"error": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    def to_retrieve(self, request=None, pk=None, many=False):
+    def to_retrieve(self, request: Model = None, pk: str | int = None, many: bool = False):
 
         if pk:
             if many == True:
@@ -83,7 +87,7 @@ class BaseView(APIView):
             serializer.is_valid()
         return serializer
 
-    def get_object(self, pk, request=None, many=False):
+    def get_object(self, pk: str | int, request: HttpRequest = None, many: bool = False):
         if many == True:
             if pk:
                 # Retorna o primeiro objeto correspondente.__param_name: pk})
@@ -102,11 +106,11 @@ class BaseView(APIView):
             return obj
         return Response({"error": f"{self.model.__name__} not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str | int = None) -> Response:
         serializer = self.to_retrieve(request, pk)
         return Response(serializer.data,  status=status.HTTP_200_OK)
 
-    def post(self, request, allowed=False):
+    def post(self, request: HttpRequest, allowed: bool = False) -> Response:
         if not allowed:
             self.is_allowed(request)
         elif request.user.is_authenticated:
@@ -117,7 +121,7 @@ class BaseView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk=None, allowed=False):
+    def put(self, request: HttpRequest, pk: str | int = None, allowed: bool = False) -> Response:
         if not allowed:
             self.is_allowed(request)
         elif request.user.is_authenticated:
@@ -130,7 +134,7 @@ class BaseView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk=None, allowed=False):
+    def delete(self, request: HttpRequest, pk: str | int = None, allowed: bool = False) -> Response:
         if not allowed:
             self.is_allowed(request)
         elif request.user.is_authenticated:
@@ -317,6 +321,35 @@ class PieceStatusView(BaseView):
         return super().delete(request, True)
 
 
+class StatusByPieceView(APIView):
+    def get(self, request, piece=None):
+        if piece:
+            object = PieceStatus.objects.filter(piece=piece)
+        else:
+            object = PieceStatus.objects.filter(
+                piece=request.data.get('piece'))
+        if object:
+            serializer = PieceStatus(object, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
+
+
+class StatusByUserView(APIView):
+    def get(self, request, user=None):
+        if not user and request.data.get('user'):
+            object = PieceStatus.objects.filter(user=request.user)
+        else:
+            if user:
+                object = PieceStatus.objects.filter(user=user)
+            else:
+                object = PieceStatus.objects.filter(
+                    user=request.data.get('user'))
+        if object:
+            serializer = PieceStatus(object, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
+
+
 class PieceAnotationView(BaseView):
     def __init__(self, model=PieceAnotation, param_name="id", serializer=PieceAnotationSerializer):
         super().__init__(model, param_name, serializer)
@@ -334,20 +367,38 @@ class PieceAnotationView(BaseView):
         return super().delete(request, True)
 
 
-class PieceStatusByPieceView(APIView):
-    def get(self, request, piece=None):
-        if piece:
-            object = PieceStatus.objects.filter(piece=piece)
-        else:
+class PieceAnotationContentView(APIView):
+    def get(self, request):
+        if request.data.get('type') == 'chapter':
             object = PieceStatus.objects.filter(
-                piece=request.data.get('piece'))
+                piece=request.data.get('chapter'))
+
+        elif request.data.get('type') == 'page':
+            object = PieceStatus.objects.filter(
+                piece=request.data.get('page'))
         if object:
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)
 
 
-class PieceAnotationContentTypeView(APIView):
+class PieceAnotationByUserView(APIView):
+    def get(self, request, user=None):
+        if not user and not request.data.get('user'):
+            object = PieceStatus.objects.filter(user=request.user)
+        else:
+            if user:
+                object = PieceStatus.objects.filter(user=user)
+            else:
+                object = PieceStatus.objects.filter(
+                    user=request.data.get('user'))
+        if object:
+            serializer = PieceStatus(object, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
+
+
+class PieceAnotationContentAndUserView(APIView):
     def get(self, request):
         if request.data.get('type') == 'chapter':
             if request.data.get('user'):
