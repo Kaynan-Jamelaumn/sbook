@@ -3,10 +3,11 @@ from .views import (
     GenreView,
     PublisherView,
     PieceView,
-    PieceFilterView,
+    SearchFilterView,
     ChapterView,
     PageView,
-    PieceAnotationView
+    PieceAnotationView,
+    PieceStatusView
 )
 
 
@@ -19,12 +20,15 @@ urlpatterns = [
     path('piece/', PieceView.as_view(), name='piece-list'),
     path('piece/<str:pk>/', PieceView.as_view(), name='piece-detail'),
     path('piece/filter/<str:pk>/',
-         PieceFilterView.as_view(), name='piece-filter'),
+         SearchFilterView.as_view(), name='piece-filter'),
     path('chapter/', ChapterView.as_view(), name='chapter'),
     path('chapter/<str:pk>/',
          ChapterView.as_view(), name='chapter-detail'),
     path('page/', PageView.as_view(), name='page'),
     path('anotation/', PieceAnotationView.as_view(), name='piece-anotation'),
     path('anotation/<str:pk>/', PieceAnotationView.as_view(),
-         name='pxiece-anotation'),
+         name='peiece-anotation'),
+    path('status/', PieceStatusView.as_view(), name='piece-status'),
+    path('status/<str:pk>/', PieceStatusView.as_view(),
+         name='piece-status'),
 ]

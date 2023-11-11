@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation
+from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation, PieceStatus
 
 
 class PublisherSerializer(serializers.ModelSerializer):
@@ -73,4 +73,10 @@ class PageSerializer(serializers.ModelSerializer):
 class PieceAnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PieceAnotation
+        fields = '__all__'
+
+
+class PieceStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PieceStatus
         fields = '__all__'

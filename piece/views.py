@@ -1,5 +1,5 @@
-from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation
-from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceAnotationSerializer
+from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation, PieceStatus
+from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceStatusSerializer, PieceAnotationSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, BasePermission
@@ -189,12 +189,10 @@ class PieceView(BaseView):
         return super().delete(request, True)
 
 
-class PieceFilterView(BaseView):
-    def __init__(self, model=Piece, param_name="status", serializer=PieceSerializer):
-        super().__init__(model, param_name, serializer)
+class SearchFilterView(APIView):
 
     def get(self, request, pk=None):
-        return super().get(request, pk)
+        objects = []
 
 
 class ChapterView(BaseView):
@@ -276,6 +274,23 @@ class PageView(BaseView):
             return Response(image_content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'error': 'Invalid content_type'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk=None):
+        return super().delete(request, True)
+
+
+class PieceStatusView(BaseView):
+    def __init__(self, model=PieceStatus, param_name="id", serializer=PieceStatusSerializer):
+        super().__init__(model, param_name, serializer)
+
+    def get(self, request, pk=None):
+        return super().get(request, pk)
+
+    def post(self, request):
+        return super().post(request, True)
+
+    def put(self, request, pk=None):
+        return super().put(request, pk, True)
 
     def delete(self, request, pk=None):
         return super().delete(request, True)
