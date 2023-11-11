@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 
-
+from django.db.models import Q
+from main.models import Author, CustomUser
+from main.serializers import AuthorListSerializer, CustomUserListSerializer
 # class IsAdminOrReadOnly(BasePermission):
 #     def has_permission(self, request, view):
 #         if request.method in ('GET', 'HEAD', 'OPTIONS'):
@@ -191,8 +193,27 @@ class PieceView(BaseView):
 
 class SearchFilterView(APIView):
 
-    def get(self, request, pk=None):
-        objects = []
+    def get(self, request):
+        search_query = request.query_params.get('search', '')
+        author = Author.objects.filter(
+            Q(name__icontains=search_query) | Q(pseudo_name__icontains=search_query))
+        piece = Piece.objects.filter(
+            Q(isbn__icontains=search_query) | Q(name__icontains=search_query))
+        publisher = Publisher.objects.filter(name__icontains=search_query)
+        user = CustomUser.objects.filter(username__icontains=search_query)
+
+        authors_serializer = AuthorListSerializer(author, many=True)
+        books_serializer = PieceSerializer(piece, many=True)
+        publishers_serializer = PublisherSerializer(publisher, many=True)
+        users_serializer = CustomUserListSerializer(user, many=True)
+
+        serialized_data = {
+            'authors': authors_serializer.data,
+            'pieces': books_serializer.data,
+            'publishers': publishers_serializer.data,
+            'users': users_serializer.data,
+        }
+        return Response(serialized_data, status=status.HTTP_200_OK)
 
 
 class ChapterView(BaseView):
