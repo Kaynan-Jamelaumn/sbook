@@ -3,10 +3,27 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        error_messages={
+            "unique": "Nome de usuário já é utilizado por outro usuário.",
+        },
+    )
+
+    last_name = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True
+    )
+
     birth_date = models.DateField(null=True, blank=True)
-    profile_picture = models.ImageField(
-        upload_to='profile_pictures/', null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/',
+        null=True,
+        blank=True
+    )
 
     SEX_CHOICES = [
         ('Male', 'Male'),
