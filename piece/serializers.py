@@ -20,12 +20,9 @@ class PieceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        author = data.get('author')
-        custom_user = data.get('custom_user')
-
-        if not author and not custom_user:
+        if not data.get('author') and not data.get('user'):
             raise serializers.ValidationError(
-                "Pelo menos um autor ou usuário personalizado deve ser especificado.")
+                "Either an author or a user must be provided.")
 
         return data
 

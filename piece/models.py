@@ -66,9 +66,8 @@ class Piece(models.Model):
     publisher = models.ForeignKey(
         Publisher, on_delete=models.CASCADE, null=False)
 
+    user = models.ManyToManyField(CustomUser, blank=True)
     author = models.ManyToManyField(Author, blank=True)
-    custom_user = models.ManyToManyField(
-        CustomUser, blank=True, null=True),
     genre = models.ManyToManyField(Genre, related_name='pieces')
 
     def save(self, *args, **kwargs):

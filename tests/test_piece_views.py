@@ -23,6 +23,18 @@ def test_genre_view_get():
 
 
 @pytest.mark.django_db
+def test_genre_view_get_failed():
+
+    # Crie um request mock
+    factory = APIRequestFactory()
+    request = factory.get('/genre/')
+
+    # Acesse a view com o método GET passando o ID do gênero
+    response = GenreView.as_view()(request, pk='Test Genre')
+    assert response.status_code == 200  # Verifique se a resposta é bem-sucedida
+
+
+@pytest.mark.django_db
 def test_genre_view_post():
     data = {'name': 'New Genre'}
 
