@@ -27,7 +27,11 @@ class Piece(models.Model):
     introduction = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    cover_picture = models.ImageField(
+        upload_to='cape_pictures/',
+        null=True,
+        blank=True
+    )
     published_at = models.DateField()
 
     WRITING_STATUS = [
@@ -66,8 +70,9 @@ class Piece(models.Model):
     publisher = models.ForeignKey(
         Publisher, on_delete=models.CASCADE, null=False)
 
+    # when a user is the author
     user = models.ManyToManyField(CustomUser, blank=True)
-    author = models.ManyToManyField(Author, blank=True)
+    author = models.ManyToManyField(Author, blank=True)  # created by admin
     genre = models.ManyToManyField(Genre, related_name='pieces')
 
     def save(self, *args, **kwargs):
