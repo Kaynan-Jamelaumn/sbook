@@ -22,11 +22,11 @@ class CurrentUserView(APIView):
 
 class CustomUserView(APIView):
 
-    def to_retrieve(self, request=None, username=None):
-        if username:
-            user = self.get_object(username)
+    def to_retrieve(self, request=None, id=None):
+        if id:
+            user = self.get_object(id)
         else:
-            user = self.get_object(request.data.get('username'))
+            user = self.get_object(request.data.get('id'))
 
         if not user:
             return Response({"error": None}, status=status.HTTP_404_NOT_FOUND)
@@ -38,15 +38,15 @@ class CustomUserView(APIView):
         if not request.data.get("email"):
             return Response({"error": "Email field is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_object(self, username):
+    def get_object(self, id):
         try:
-            return CustomUser.objects.get(username=username)
+            return CustomUser.objects.get(id=id)
         except CustomUser.DoesNotExist:
             return None
 
-    def get(self, request, username=None):
-        if username:
-            user = self.get_object(username)
+    def get(self, request, id=None):
+        if id:
+            user = self.get_object(id)
             if user is None:
                 return Response({"detail": None}, status=status.HTTP_404_NOT_FOUND)
             serializer = CustomUserListSerializer(
@@ -68,8 +68,8 @@ class CustomUserView(APIView):
         serializer.save()
         return Response({"user": serializer.data}, status=status.HTTP_201_CREATED)
 
-    def put(self, request, username=None):
-        user = self.to_retrieve(request, username)
+    def put(self, request, id=None):
+        user = self.to_retrieve(request, id)
         if request.user != user and not request.user.is_staff:
             return Response({"error": "You do not have permission to edit this user"}, status=status.HTTP_403_FORBIDDEN)
 
@@ -86,8 +86,8 @@ class CustomUserView(APIView):
         login(self.request, user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, username=None):
-        user = self.to_retrieve(request, username)
+    def delete(self, request, id=None):
+        user = self.to_retrieve(request, id)
         if request.user != user and not request.user.is_staff:
             return Response({"error": "You do not have permission to delete this user"}, status=status.HTTP_403_FORBIDDEN)
         user.is_active = False
