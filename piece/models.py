@@ -14,14 +14,14 @@ class Publisher(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=150, primary_key=True)
+    name = models.CharField(max_length=150)
 
     def __str__(self):
         return self.name
 
 
 class Piece(models.Model):
-    isbn = models.CharField(max_length=150, primary_key=True, blank=True)
+    isbn = models.CharField(max_length=150, blank=True)
     name = models.CharField(max_length=150)
     pages = models.IntegerField(null=True, blank=True)
     introduction = models.TextField()

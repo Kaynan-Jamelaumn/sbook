@@ -18,48 +18,75 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Author',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(blank=True, max_length=150, null=True)),
-                ('last_name', models.CharField(blank=True, max_length=150, null=True)),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('first_name', models.CharField(
+                    blank=True, max_length=150, null=True)),
+                ('last_name', models.CharField(
+                    blank=True, max_length=150, null=True)),
                 ('birth_date', models.DateField(blank=True, null=True)),
-                ('profile_picture', models.ImageField(blank=True, null=True, upload_to='profile_pictures/')),
+                ('profile_picture', models.ImageField(
+                    blank=True, null=True, upload_to='profile_pictures/')),
                 ('bio', models.TextField(blank=True, max_length=3000, null=True)),
-                ('sex', models.CharField(blank=True, choices=[('M', 'Male'), ('F', 'Female')], max_length=1, null=True)),
-                ('gender', models.CharField(blank=True, choices=[('Woman', 'Woman'), ('Man', 'Man'), ('Non-binary', 'Non-binary'), ('Other', 'Other'), ('Genderfluid', 'Genderfluid'), ('Agender', 'Agender'), ('The Love of Your Life', 'The Love of Your Life'), ('Heavenly Demon', 'Heavenly Demon')], max_length=30, null=True)),
+                ('sex', models.CharField(blank=True, choices=[
+                 ('M', 'Male'), ('F', 'Female')], max_length=1, null=True)),
+                ('gender', models.CharField(blank=True, choices=[('Woman', 'Woman'), ('Man', 'Man'), ('Non-binary', 'Non-binary'), ('Other', 'Other'), ('Genderfluid', 'Genderfluid'), (
+                    'Agender', 'Agender'), ('The Love of Your Life', 'The Love of Your Life'), ('Heavenly Demon', 'Heavenly Demon')], max_length=30, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('pseudo_name', models.CharField(blank=True, max_length=150, null=True)),
+                ('pseudo_name', models.CharField(
+                    blank=True, max_length=150, null=True)),
                 ('death_day', models.DateField(blank=True, null=True)),
-                ('home_country', models.CharField(blank=True, max_length=150, null=True)),
-                ('home_state', models.CharField(blank=True, max_length=150, null=True)),
-                ('home_town', models.CharField(blank=True, max_length=150, null=True)),
+                ('home_country', models.CharField(
+                    blank=True, max_length=150, null=True)),
+                ('home_state', models.CharField(
+                    blank=True, max_length=150, null=True)),
+                ('home_town', models.CharField(
+                    blank=True, max_length=150, null=True)),
                 ('approved', models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
             name='CustomUser',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
-                ('first_name', models.CharField(blank=True, max_length=150, verbose_name='first name')),
-                ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='email address')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('password', models.CharField(
+                    max_length=128, verbose_name='password')),
+                ('last_login', models.DateTimeField(
+                    blank=True, null=True, verbose_name='last login')),
+                ('is_superuser', models.BooleanField(default=False,
+                 help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
+                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+                 max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
+                ('first_name', models.CharField(blank=True,
+                 max_length=150, verbose_name='first name')),
+                ('last_name', models.CharField(blank=True,
+                 max_length=150, verbose_name='last name')),
+                ('email', models.EmailField(blank=True,
+                 max_length=254, verbose_name='email address')),
+                ('is_staff', models.BooleanField(default=False,
+                 help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
+                ('is_active', models.BooleanField(
+                    default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
+                ('date_joined', models.DateTimeField(
+                    default=django.utils.timezone.now, verbose_name='date joined')),
                 ('birth_date', models.DateField(blank=True, null=True)),
-                ('profile_picture', models.ImageField(blank=True, null=True, upload_to='profile_pictures/')),
+                ('profile_picture', models.ImageField(
+                    blank=True, null=True, upload_to='profile_pictures/')),
                 ('bio', models.TextField(blank=True, null=True)),
-                ('sex', models.CharField(blank=True, choices=[('M', 'Male'), ('F', 'Female')], max_length=1, null=True)),
-                ('gender', models.CharField(blank=True, choices=[('Woman', 'Woman'), ('Man', 'Man'), ('Non-binary', 'Non-binary'), ('Other', 'Other'), ('Genderfluid', 'Genderfluid'), ('Agender', 'Agender'), ('The Love of Your Life', 'The Love of Your Life'), ('Heavenly Demon', 'Heavenly Demon')], max_length=30, null=True)),
+                ('sex', models.CharField(blank=True, choices=[
+                 ('M', 'Male'), ('F', 'Female')], max_length=1, null=True)),
+                ('gender', models.CharField(blank=True, choices=[('Woman', 'Woman'), ('Man', 'Man'), ('Non-binary', 'Non-binary'), ('Other', 'Other'), ('Genderfluid', 'Genderfluid'), (
+                    'Agender', 'Agender'), ('The Love of Your Life', 'The Love of Your Life'), ('Heavenly Demon', 'Heavenly Demon')], max_length=30, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('pseudo_name', models.CharField(blank=True, max_length=150, null=True)),
-                ('groups', models.ManyToManyField(blank=True, related_name='custom_users', to='auth.group')),
-                ('user_permissions', models.ManyToManyField(related_name='custom_users', to='auth.permission')),
+                ('pseudo_name', models.CharField(
+                    blank=True, max_length=150, null=True)),
+                ('groups', models.ManyToManyField(blank=True,
+                 related_name='custom_users', to='auth.group')),
+                ('user_permissions', models.ManyToManyField(
+                    related_name='custom_users', to='auth.permission')),
             ],
             options={
                 'verbose_name': 'user',
