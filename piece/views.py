@@ -112,7 +112,6 @@ class BaseView(APIView):
         return Response(serializer.data,  status=status.HTTP_200_OK)
 
     def post(self, request: HttpRequest, allowed: bool = False, permission_type: str = None) -> Response:
-        print("aaa", request.user, request.user.is_authenticated, request)
         if not allowed and not self.is_allowed(request):
             return self.not_allowed_response(permission_type)
 
@@ -150,7 +149,7 @@ class BaseView(APIView):
 
 
 class GenreView(BaseView):
-    def __init__(self, model=Genre, param_name="name", serializer=GenreSerializer):
+    def __init__(self, model=Genre, param_name="id", serializer=GenreSerializer):
         super().__init__(model, param_name, serializer)
 
     def get(self, request, pk=None):

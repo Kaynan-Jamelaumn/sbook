@@ -56,6 +56,9 @@ class Piece(models.Model):
         ('Manhwa', 'Manhwa'),
         ('Manwa', 'Manwa'),
         ('Novel', 'Novel'),
+        ('Comic', 'Comic'),
+        ('Book', 'Book'),
+        ('Revista', 'Revista'),
 
     ]
 
