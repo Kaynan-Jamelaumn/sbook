@@ -49,11 +49,13 @@ class BaseView(APIView):
     def serializer(self, value: Serializer):
         self.__serializer = value
 
-    def is_allowed(self, request: HttpRequest, permission_type: str = None):
-        if not request.user.is_staff:
-            if permission_type:
-                return Response({f"error": "You do not have the necessary permission to {permission_type} an/a {self.model}"}, status=status.HTTP_403_FORBIDDEN)
-            return Response({"error": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
+    def is_allowed(self, request: HttpRequest):
+        return request.user.is_staff
+
+    def not_allowed_response(self, permission_type: str | None = None):
+        if permission_type:
+            return Response({f"error": "You do not have the necessary permission to {permission_type} an/a {self.model}"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"error": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
 
     def check_obj(self, obj):
         if not obj:
@@ -110,8 +112,9 @@ class BaseView(APIView):
         return Response(serializer.data,  status=status.HTTP_200_OK)
 
     def post(self, request: HttpRequest, allowed: bool = False) -> Response:
-        if not allowed:
-            self.is_allowed(request)
+        if not allowed and not self.is_allowed(request):
+            return self.not_allowed_response()
+
         elif not request.user.is_authenticated:
             return Response({"error": f"You must be logged in to post a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         serializer = self.serializer(data=request.data)
@@ -121,8 +124,9 @@ class BaseView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request: HttpRequest, pk: str | int = None, allowed: bool = False) -> Response:
-        if not allowed:
-            self.is_allowed(request)
+        if not allowed and not self.is_allowed(request):
+            return self.not_allowed_response()
+
         elif request.user.is_authenticated:
             return Response({"error": f"You must be logged in to edit a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)
@@ -134,8 +138,9 @@ class BaseView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request: HttpRequest, pk: str | int = None, allowed: bool = False) -> Response:
-        if not allowed:
-            self.is_allowed(request)
+        if not allowed and not self.is_allowed(request):
+            return self.not_allowed_response()
+
         elif not request.user.is_authenticated:
             return Response({"error": f"You must be logged in to delete a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)

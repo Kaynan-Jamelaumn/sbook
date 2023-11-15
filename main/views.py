@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 
+from piece.views import BaseView
+
 from .models import CustomUser, Author
 from .serializers import CustomUserSerializer, CustomUserListSerializer, CurrentCustomUserSerializer, AuthorSerializer, AuthorListSerializer
 from django.contrib.auth import login, authenticate, logout
@@ -118,12 +120,7 @@ class CustomUserLogout(APIView):
         return Response({"success": True}, status=status.HTTP_200_OK)
 
 
-class AuthorView(APIView):
-
-    def is_allowed(self, request):
-        if not request.user.is_staff:
-            return Response({"error": "You do not have the necessary permissions"}, status=status.HTTP_403_FORBIDDEN)
-
+class AuthorView(BaseView):
     def to_retrieve(self, request=None, id=None):
         if id:
             author = self.get_object(id)
@@ -159,7 +156,9 @@ class AuthorView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, id=None):
-        self.is_allowed()
+        if not self.is_allowed(request):
+            return self.not_allowed_response()
+
         author = self.to_retrieve(request, id)
 
         serializer = AuthorSerializer(
@@ -171,7 +170,9 @@ class AuthorView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id=None):
-        self.is_allowed()
+        if not self.is_allowed(request):
+            return self.not_allowed_response()
+
         author = self.to_retrieve(request, id)
 
         author.delete()
