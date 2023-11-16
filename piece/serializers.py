@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation, PieceStatus
+from main.serializers import AuthorSerializer, CustomUserSerializer
 
 
 class PublisherSerializer(serializers.ModelSerializer):
@@ -15,6 +16,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class PieceSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(many=True)
+    user = CustomUserSerializer(many=True)
+    genre = GenreSerializer(many=True)
+
     class Meta:
         model = Piece
         fields = '__all__'

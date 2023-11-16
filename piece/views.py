@@ -183,7 +183,7 @@ class PublisherView(BaseView):
 
 
 class PieceView(BaseView):
-    def __init__(self, model=Piece, param_name="isbn", serializer=PieceSerializer):
+    def __init__(self, model=Piece, param_name="id", serializer=PieceSerializer):
         super().__init__(model, param_name, serializer)
 
     def get(self, request, pk=None):
