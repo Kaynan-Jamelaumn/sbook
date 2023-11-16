@@ -127,7 +127,7 @@ class BaseView(APIView):
         if not allowed and not self.is_allowed(request):
             return self.not_allowed_response(permission_type)
 
-        elif request.user.is_authenticated:
+        elif not request.user.is_authenticated:
             return Response({"error": f"You must be logged in to edit a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)
         print("teste", obj)

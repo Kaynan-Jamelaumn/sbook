@@ -59,7 +59,7 @@ class CustomUser(AbstractUser):
 
 
 class Author(models.Model):
-    first_name = models.CharField(max_length=150, null=True, blank=True)
+    first_name = models.CharField(max_length=150, null=False, blank=False)
     last_name = models.CharField(max_length=150, null=True, blank=True)
 
     birth_date = models.DateField(null=True, blank=True)

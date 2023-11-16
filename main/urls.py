@@ -17,6 +17,6 @@ urlpatterns = [
     path('user/<int:id>/', CustomUserView.as_view(), name='user-edit'),
 
     path('author/', AuthorView.as_view(), name='author'),
-    path('author/<int:id>/', AuthorView.as_view(), name='author-detail'),
+    path('author/<int:pk>/', AuthorView.as_view(), name='author-detail'),
 
 ]

@@ -114,5 +114,8 @@ class AuthorView(BaseView):
     def post(self, request):
         return super().post(request)
 
+    def put(self, request, pk=None):
+        return super().put(request, pk)
+
     def delete(self, request, pk=None):
         return super().delete(request, pk)
