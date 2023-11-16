@@ -11,6 +11,7 @@ from .models import CustomUser, Author
 from .serializers import CustomUserSerializer, CustomUserListSerializer, CurrentCustomUserSerializer, AuthorSerializer, AuthorListSerializer
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
+from piece.views import BaseView
 
 
 class CurrentUserView(APIView):
@@ -22,42 +23,25 @@ class CurrentUserView(APIView):
         return Response({"user": None}, status=status.HTTP_404_NOT_FOUND)
 
 
-class CustomUserView(APIView):
+class CustomUserView(BaseView):
+    def __init__(self, model=CustomUser, param_name="id", serializer=CustomUserSerializer):
+        super().__init__(model, param_name, serializer)
 
-    def to_retrieve(self, request=None, id=None):
-        if id:
-            user = self.get_object(id)
-        else:
-            user = self.get_object(request.data.get('id'))
+    def get(self, request, pk=None):
+        return super().get(request, pk)
 
-        if not user:
-            return Response({"error": None}, status=status.HTTP_404_NOT_FOUND)
-        return user
-
-    def required_fields(self, request):
-        if not request.data.get("first_name"):
-            return Response({"error": "First Name field is required"}, status=status.HTTP_400_BAD_REQUEST)
-        if not request.data.get("email"):
-            return Response({"error": "Email field is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def get_object(self, id):
-        try:
-            return CustomUser.objects.get(id=id)
-        except CustomUser.DoesNotExist:
-            return None
-
-    def get(self, request, id=None):
-        if id:
-            user = self.get_object(id)
-            if user is None:
-                return Response({"detail": None}, status=status.HTTP_404_NOT_FOUND)
-            serializer = CustomUserListSerializer(
-                user)
-        else:
-            users = CustomUser.objects.filter(is_active=True)
-            serializer = CustomUserListSerializer(
-                users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def get(self, request, id=None):
+    #     if id:
+    #         user = self.get_object(id)
+    #         if user is None:
+    #             return Response({"detail": None}, status=status.HTTP_404_NOT_FOUND)
+    #         serializer = CustomUserListSerializer(
+    #             user)
+    #     else:
+    #         users = CustomUser.objects.filter(is_active=True)
+    #         serializer = CustomUserListSerializer(
+    #             users, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
 
@@ -121,59 +105,14 @@ class CustomUserLogout(APIView):
 
 
 class AuthorView(BaseView):
-    def to_retrieve(self, request=None, id=None):
-        if id:
-            author = self.get_object(id)
-        else:
-            author = self.get_object(request.data.get('id'))
+    def __init__(self, model=Author, param_name="id", serializer=AuthorSerializer):
+        super().__init__(model, param_name, serializer)
 
-        if not author:
-            return Response({"error": None}, status=status.HTTP_404_NOT_FOUND)
-        return author
-
-    def get_object(self, id):
-        try:
-            return Author.objects.get(id=id)
-        except Author.DoesNotExist:
-            return None
-
-    def get(self, request, id=None):
-        if id:
-            user = self.get_object(id)
-            if user is None:
-                return Response({"error": None}, status=status.HTTP_404_NOT_FOUND)
-            serializer = AuthorListSerializer(user)
-        else:
-            user = Author.objects.all()
-            serializer = AuthorListSerializer(user, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, pk=None):
+        return super().get(request, pk)
 
     def post(self, request):
-        serializer = AuthorSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return super().post(request)
 
-    def put(self, request, id=None):
-        if not self.is_allowed(request):
-            return self.not_allowed_response()
-
-        author = self.to_retrieve(request, id)
-
-        serializer = AuthorSerializer(
-            author, data=request.data, partial=True)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def delete(self, request, id=None):
-        if not self.is_allowed(request):
-            return self.not_allowed_response()
-
-        author = self.to_retrieve(request, id)
-
-        author.delete()
-        return Response({"detail": "Author deleted and set as inactive"}, status=status.HTTP_200_OK)
+    def delete(self, request, pk=None):
+        return super().delete(request, pk)
