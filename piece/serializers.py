@@ -16,9 +16,17 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class PieceSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer(many=True)
-    user = CustomUserSerializer(many=True)
-    genre = GenreSerializer(many=True)
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['author'] = AuthorSerializer(
+            instance.author, many=True).data
+
+        representation['user'] = CustomUserSerializer(
+            instance.user, many=True).data
+
+        representation['genre'] = GenreSerializer(
+            instance.genre, many=True).data
+        return representation
 
     class Meta:
         model = Piece

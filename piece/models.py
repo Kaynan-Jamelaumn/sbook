@@ -35,6 +35,7 @@ class Piece(models.Model):
     published_at = models.DateField()
 
     WRITING_STATUS = [
+        ('Published', 'Published'),
         ('Announced', 'Announced'),
         ('Completed', 'Completed'),
         ('Deleted', 'Deleted'),
@@ -58,8 +59,7 @@ class Piece(models.Model):
         ('Novel', 'Novel'),
         ('Comic', 'Comic'),
         ('Book', 'Book'),
-        ('Revista', 'Revista'),
-
+        ('Magazine', 'Magazine'),
     ]
 
     is_official = models.CharField(
