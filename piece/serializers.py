@@ -18,14 +18,17 @@ class GenreSerializer(serializers.ModelSerializer):
 class PieceSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['author'] = AuthorSerializer(
-            instance.author, many=True).data
+        representation['authors'] = AuthorSerializer(
+            instance.authors, many=True).data
 
-        representation['user'] = CustomUserSerializer(
-            instance.user, many=True).data
+        representation['users'] = CustomUserSerializer(
+            instance.users, many=True).data
 
-        representation['genre'] = GenreSerializer(
-            instance.genre, many=True).data
+        representation['genres'] = GenreSerializer(
+            instance.genres, many=True).data
+
+        representation['publisher'] = PublisherSerializer(
+            instance.publisher).data
         return representation
 
     class Meta:
@@ -33,7 +36,7 @@ class PieceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        if not data.get('author') and not data.get('user'):
+        if not data.get('authors') and not data.get('users'):
             raise serializers.ValidationError(
                 "Either an author or a user must be provided.")
 

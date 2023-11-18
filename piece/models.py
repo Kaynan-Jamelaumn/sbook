@@ -74,9 +74,9 @@ class Piece(models.Model):
         Publisher, on_delete=models.CASCADE, null=False)
 
     # when a user is the author
-    user = models.ManyToManyField(CustomUser, blank=True)
-    author = models.ManyToManyField(Author, blank=True)  # created by admin
-    genre = models.ManyToManyField(Genre, related_name='pieces')
+    users = models.ManyToManyField(CustomUser, blank=True)
+    authors = models.ManyToManyField(Author, blank=True)  # created by admin
+    genres = models.ManyToManyField(Genre, related_name='pieces')
 
     def save(self, *args, **kwargs):
         if not self.isbn:

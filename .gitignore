@@ -2,3 +2,4 @@ venv
 n.py
 *.pyc
 *.sqlite3
+cape_pictures
