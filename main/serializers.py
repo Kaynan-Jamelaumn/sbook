@@ -5,8 +5,8 @@ from .models import CustomUser, Author
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        exclude = ['is_staff',
-                   'is_superuser', 'groups', 'user_permissions', 'last_login', 'date_joined', 'is_active']
+        exclude = ['is_staff', 'groups', 'user_permissions',
+                   'last_login', 'date_joined', 'is_active']
 
 
 class CustomUserListSerializer(serializers.ModelSerializer):
