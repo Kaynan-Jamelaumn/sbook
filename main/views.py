@@ -1,4 +1,3 @@
-# views.py
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -27,25 +26,21 @@ class CustomUserView(BaseView):
     def __init__(self, model=CustomUser, param_name="id", serializer=CustomUserSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
-        return super().get(request, pk)
+    def get(self, request, id=None):
+        return super().get(request, id)
 
-    # def get(self, request, id=None):
-    #     if id:
-    #         user = self.get_object(id)
-    #         if user is None:
-    #             return Response({"detail": None}, status=status.HTTP_404_NOT_FOUND)
-    #         serializer = CustomUserListSerializer(
-    #             user)
-    #     else:
-    #         users = CustomUser.objects.filter(is_active=True)
-    #         serializer = CustomUserListSerializer(
-    #             users, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    def required_fields(self, request):
+        if not request.data.get("first_name"):
+            return "First Name field is required"
+        if not request.data.get("email"):
+            return "Email field is required"
+        return False
 
     def post(self, request):
 
-        self.required_fields(request)
+        message = self.required_fields(request)
+        if message:
+            return Response({"detail": "Email field is required"}, status=status.HTTP_400_BAD_REQUEST)
         request.data['password'] = make_password(request.data['password'])
 
         serializer = CustomUserSerializer(data=request.data)
@@ -56,28 +51,39 @@ class CustomUserView(BaseView):
 
     def put(self, request, id=None):
         user = self.to_retrieve(request, id)
-        if request.user != user and not request.user.is_staff:
+
+        if isinstance(user, self.serializer):  # Check if user is a serializer
+            user_instance = user.instance  # Extract the model instance from the serializer
+        else:
+            user_instance = user
+
+        if request.user != user_instance and not request.user.is_staff:
             return Response({"error": "You do not have permission to edit this user"}, status=status.HTTP_403_FORBIDDEN)
 
         if 'password' in request.data:
-            request.data['password'] = make_password(
-                request.data['password'])  # Converta a nova senha em um hash
+            request.data['password'] = make_password(request.data['password'])
 
-        serializer = CustomUserSerializer(
-            user, data=request.data, partial=True)
+        serializer = self.serializer(
+            user_instance, data=request.data, partial=True)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         serializer.save()
-        login(self.request, user)
+        login(self.request, user_instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, id=None):
         user = self.to_retrieve(request, id)
+
+        if isinstance(user, self.serializer):  # Check if user is a serializer
+            user_instance = user.instance  # Extract the model instance from the serializer
+        else:
+            user_instance = user
         if request.user != user and not request.user.is_staff:
             return Response({"error": "You do not have permission to delete this user"}, status=status.HTTP_403_FORBIDDEN)
-        user.is_active = False
-        user.save()
+        user_instance.is_active = False
+        user_instance.save()
         return Response({"error": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
