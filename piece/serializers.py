@@ -16,6 +16,16 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class PieceSerializer(serializers.ModelSerializer):
+
+    def validate(self, data):
+        if self.instance is None:
+
+            if not data.get('authors') and not data.get('users'):
+                raise serializers.ValidationError(
+                    "Either an author or a user must be provided.")
+
+        return data
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['authors'] = AuthorSerializer(
@@ -34,13 +44,6 @@ class PieceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Piece
         fields = '__all__'
-
-    def validate(self, data):
-        if not data.get('authors') and not data.get('users'):
-            raise serializers.ValidationError(
-                "Either an author or a user must be provided.")
-
-        return data
 
 
 class ChapterSerializer(serializers.ModelSerializer):

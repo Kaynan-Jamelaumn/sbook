@@ -28,7 +28,7 @@ class Piece(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     cover_picture = models.ImageField(
-        upload_to='cape_pictures/',
+        upload_to='cover_pictures/',
         null=True,
         blank=True
     )
