@@ -426,3 +426,9 @@ class PieceAnotationContentAndUserView(APIView):
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)
+
+
+class PieceStatusView(APIView):
+
+    def get(self, request, pk=None):
+        return super().get(request, pk)
