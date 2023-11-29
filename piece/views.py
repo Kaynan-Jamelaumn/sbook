@@ -335,7 +335,7 @@ class StatusByPieceView(APIView):
         if object:
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"status": []}, status=status.HTTP_200_OK)
 
 
 class StatusByUserView(APIView):
@@ -351,7 +351,7 @@ class StatusByUserView(APIView):
         if object:
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"status": []}, status=status.HTTP_200_OK)
 
 
 class PieceAnotationView(BaseView):
@@ -383,7 +383,7 @@ class PieceAnotationContentView(APIView):
         if object:
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"status": []}, status=status.HTTP_200_OK)
 
 
 class PieceAnotationByUserView(APIView):
@@ -399,7 +399,7 @@ class PieceAnotationByUserView(APIView):
         if object:
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"status": []}, status=status.HTTP_200_OK)
 
 
 class PieceAnotationContentAndUserView(APIView):
@@ -425,7 +425,7 @@ class PieceAnotationContentAndUserView(APIView):
         if object:
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"status": []}, status=status.HTTP_200_OK)
 
 
 class PieceRatingAverageView(APIView):
