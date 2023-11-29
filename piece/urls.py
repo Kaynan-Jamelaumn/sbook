@@ -39,11 +39,11 @@ urlpatterns = [
          name='piece-status-detail'),
     path('status/piece/', StatusByPieceView.as_view(),
          name='piece-status-by-piece-list'),
-    path('status/piece/<str:piece>', StatusByPieceView.as_view(),
+    path('status/piece/<str:piece>/', StatusByPieceView.as_view(),
          name='piece-status-by-piece-list'),
     path('status/user/', StatusByUserView.as_view(),
          name='piece-status-by-user-list'),
-    path('status/user/<str:user>', StatusByUserView.as_view(),
+    path('status/user/<str:user>/', StatusByUserView.as_view(),
          name='piece-status-by-user-list'),
 
 
@@ -54,7 +54,7 @@ urlpatterns = [
          name='piece-anotation-content-list'),
     path('anotation/user/', PieceAnotationByUserView.as_view(),
          name='piece-anotation-by-user-list'),
-    path('anotation/user/<str:user>', PieceAnotationByUserView.as_view(),
+    path('anotation/user/<str:user>/', PieceAnotationByUserView.as_view(),
          name='piece-anotation-by-user-list'),
     path('anotation/content-and-user/', PieceAnotationContentAndUserView.as_view(),
          name='piece-anotation-content-and-user-list'),
