@@ -333,7 +333,7 @@ class StatusByPieceView(APIView):
             object = PieceStatus.objects.filter(
                 piece=request.data.get('piece'))
         if object:
-            serializer = PieceStatus(object, many=True)
+            serializer = PieceStatusSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
@@ -349,7 +349,7 @@ class StatusByUserView(APIView):
                 object = PieceStatus.objects.filter(
                     user=request.data.get('user'))
         if object:
-            serializer = PieceStatus(object, many=True)
+            serializer = PieceStatusSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
@@ -381,7 +381,7 @@ class PieceAnotationContentView(APIView):
             object = PieceStatus.objects.filter(
                 piece=request.data.get('page'))
         if object:
-            serializer = PieceStatus(object, many=True)
+            serializer = PieceAnotationSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
@@ -397,7 +397,7 @@ class PieceAnotationByUserView(APIView):
                 object = PieceStatus.objects.filter(
                     user=request.data.get('user'))
         if object:
-            serializer = PieceStatus(object, many=True)
+            serializer = PieceAnotationSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
@@ -423,7 +423,7 @@ class PieceAnotationContentAndUserView(APIView):
                     user=request.user,
                     piece=request.data.get('page'))
         if object:
-            serializer = PieceStatus(object, many=True)
+            serializer = PieceAnotationSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
