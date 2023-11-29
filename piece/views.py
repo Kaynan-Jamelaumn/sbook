@@ -426,3 +426,20 @@ class PieceAnotationContentAndUserView(APIView):
             serializer = PieceStatus(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)
+
+
+class PieceRatingAverageView(APIView):
+    def get(self, request, pk):
+        try:
+            piece = Piece.objects.get(id=pk)
+        except Piece.DoesNotExist:
+            return Response({"error": "Piece not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        ratings = PieceStatus.objects.filter(
+            piece=piece).values_list('rating', flat=True)
+
+        if not ratings:
+            return Response({"message": "No ratings for this piece yet"}, status=status.HTTP_200_OK)
+
+        average_rating = sum(ratings) / len(ratings)
+        return Response({"average_rating": average_rating}, status=status.HTTP_200_OK)
