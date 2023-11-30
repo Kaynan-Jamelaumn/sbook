@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation, PieceStatus
 from main.serializers import AuthorSerializer, CustomUserSerializer
 
+from decimal import Decimal, ROUND_HALF_UP
+
 
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +18,19 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class PieceSerializer(serializers.ModelSerializer):
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, instance):
+        try:
+            ratings = PieceStatus.objects.filter(
+                piece=instance).values_list('rating', flat=True)
+            average_rating = sum(ratings) / len(ratings)
+            # Arredonde a média para .0 ou .5
+            rounded_rating = Decimal(average_rating).quantize(
+                Decimal('0.0'), rounding=ROUND_HALF_UP)
+            return float(rounded_rating)
+        except ZeroDivisionError:
+            return 0
 
     def validate(self, data):
         if self.instance is None:
@@ -93,6 +108,12 @@ class PieceAnotationSerializer(serializers.ModelSerializer):
 
 
 class PieceStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PieceStatus
+        fields = '__all__'
+
+
+class PieceRatingSerializerr(serializers.ModelSerializer):
     class Meta:
         model = PieceStatus
         fields = '__all__'

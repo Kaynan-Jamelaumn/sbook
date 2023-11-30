@@ -13,8 +13,6 @@ from .views import (
     PieceStatusView,
     StatusByPieceView,
     StatusByUserView,
-    PieceRatingAverageView
-
 
 )
 
@@ -59,6 +57,4 @@ urlpatterns = [
     path('anotation/content-and-user/', PieceAnotationContentAndUserView.as_view(),
          name='piece-anotation-content-and-user-list'),
 
-    path('piece/<str:pk>/average-rating/',
-         PieceRatingAverageView.as_view(), name='piece-average-rating'),
 ]
