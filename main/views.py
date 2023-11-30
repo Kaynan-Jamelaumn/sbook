@@ -37,7 +37,6 @@ class CustomUserView(BaseView):
         return False
 
     def post(self, request):
-
         message = self.required_fields(request)
         if message:
             return Response({"detail": "Email field is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -46,7 +45,9 @@ class CustomUserView(BaseView):
         serializer = CustomUserSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        user = serializer.save()
+        login(request, user)
+
         return Response({"user": serializer.data}, status=status.HTTP_201_CREATED)
 
     def put(self, request, id=None):
@@ -70,7 +71,6 @@ class CustomUserView(BaseView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()
-        login(self.request, user_instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, id=None):
