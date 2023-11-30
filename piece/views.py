@@ -347,6 +347,25 @@ class StatusByUserView(APIView):
         return Response({"status": []}, status=status.HTTP_200_OK)
 
 
+class StatusByUserFilteringByStatusChoieceView(APIView):
+    def get(self, request, user=None, status=None):
+        if not status:
+            status = request.data.get('status')
+        if not user and request.data.get('user'):
+            object = PieceStatus.objects.filter(
+                user=request.user, status=status)
+        else:
+            if user:
+                object = PieceStatus.objects.filter(user=user, status=status)
+            else:
+                object = PieceStatus.objects.filter(
+                    user=request.data.get('user'), status=status)
+        if object:
+            serializer = PieceStatusSerializer(object, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"status": []}, status=status.HTTP_200_OK)
+
+
 class PieceAnotationView(BaseView):
     def __init__(self, model=PieceAnotation, param_name="id", serializer=PieceAnotationSerializer):
         super().__init__(model, param_name, serializer)
