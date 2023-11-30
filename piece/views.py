@@ -2,17 +2,11 @@ from .models import Publisher, Genre,  Piece, Chapter, Page,  PieceAnotation, Pi
 from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceStatusSerializer, PieceAnotationSerializer
 from rest_framework import status
 from rest_framework.views import APIView
-# from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 
 from django.db.models import Q
 from main.models import Author, CustomUser
 from main.serializers import AuthorListSerializer, CustomUserListSerializer
-# class IsAdminOrReadOnly(BasePermission):
-#     def has_permission(self, request, view):
-#         if request.method in ('GET', 'HEAD', 'OPTIONS'):
-#             return True
-#         return request.user and request.user.is_staff
 from django.http import HttpRequest
 from django.db.models import Model
 from rest_framework.serializers import Serializer
@@ -130,7 +124,6 @@ class BaseView(APIView):
         elif not request.user.is_authenticated:
             return Response({"error": f"You must be logged in to edit a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)
-        print("teste", obj)
         serializer = self.serializer(obj, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

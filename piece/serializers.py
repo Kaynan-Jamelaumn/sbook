@@ -102,18 +102,31 @@ class PageSerializer(serializers.ModelSerializer):
 
 
 class PieceAnotationSerializer(serializers.ModelSerializer):
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = CustomUserSerializer(
+            instance.user).data
+
+        representation['piece'] = PieceSerializer(
+            instance.piece).data
+        return representation
+
     class Meta:
         model = PieceAnotation
         fields = '__all__'
 
 
 class PieceStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PieceStatus
-        fields = '__all__'
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = CustomUserSerializer(
+            instance.user).data
 
+        representation['piece'] = PieceSerializer(
+            instance.piece).data
+        return representation
 
-class PieceRatingSerializerr(serializers.ModelSerializer):
     class Meta:
         model = PieceStatus
         fields = '__all__'
