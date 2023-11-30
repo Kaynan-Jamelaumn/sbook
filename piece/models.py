@@ -167,11 +167,11 @@ class PieceAnotation(models.Model):
 
 class PieceStatus(models.Model):
     STATUS_CHOICES = [
-        ('Finished', 'Finished'),
-        ('Abandoned', 'Abandoned'),
-        ('In Progress', 'In Progress'),
-        ('Paused', 'Paused'),
-        ('Hoping to Start', 'Hoping to Start')
+        ('finished', 'Finished'),
+        ('abandoned', 'Abandoned'),
+        ('in_progress', 'In Progress'),
+        ('paused', 'Paused'),
+        ('hoping_to_start', 'Hoping to Start')
     ]
     RATING_CHOICES = [
         (0.5, '0.5'),

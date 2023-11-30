@@ -348,18 +348,19 @@ class StatusByUserView(APIView):
 
 
 class StatusByUserFilteringByStatusChoieceView(APIView):
-    def get(self, request, user=None, status=None):
-        if not status:
-            status = request.data.get('status')
+    def get(self, request, user=None, status_choice=None):
+        if not status_choice:
+            status_choice = request.data.get('status')
         if not user and request.data.get('user'):
             object = PieceStatus.objects.filter(
-                user=request.user, status=status)
+                user=request.user, status=status_choice)
         else:
             if user:
-                object = PieceStatus.objects.filter(user=user, status=status)
+                object = PieceStatus.objects.filter(
+                    user=user, status=status_choice)
             else:
                 object = PieceStatus.objects.filter(
-                    user=request.data.get('user'), status=status)
+                    user=request.data.get('user'), status=status_choice)
         if object:
             serializer = PieceStatusSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
