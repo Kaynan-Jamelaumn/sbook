@@ -46,7 +46,7 @@ urlpatterns = [
 
     path('status/search/user/', StatusByUserFilteringByStatusChoieceView.as_view(),
          name='piece-status-search-by-user'),
-    path('status/search/user/<str:user>/<str:status>/', StatusByUserFilteringByStatusChoieceView.as_view(),
+    path('status/search/user/<str:user>/<str:status_choice>/', StatusByUserFilteringByStatusChoieceView.as_view(),
          name='piece-status-search-by-user-detail'),
 
     path('anotation/', PieceAnotationView.as_view(),
