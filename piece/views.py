@@ -363,7 +363,7 @@ class StatusByUserFilteringByStatusChoieceView(APIView):
                     user=request.data.get('user'), status=status_choice)
         if object:
             serializer = PieceStatusSerializer(object, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"status": serializer.data}, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
 

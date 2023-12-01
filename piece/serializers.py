@@ -22,8 +22,8 @@ class PieceSerializer(serializers.ModelSerializer):
 
     def get_rating(self, instance):
         try:
-            ratings = PieceStatus.objects.filter(
-                piece=instance).values_list('rating', flat=True)
+            ratings = PieceStatus.objects.filter(piece=instance, rating__isnull=False).values_list('rating', flat=True)
+
             average_rating = sum(ratings) / len(ratings)
             # Arredonde a média para .0 ou .5
             rounded_rating = Decimal(average_rating).quantize(
