@@ -197,7 +197,7 @@ class SearchFilterView(APIView):
     def get(self, request):
         search_query = request.query_params.get('search', '')
         author = Author.objects.filter(
-            Q(name__icontains=search_query) | Q(pseudo_name__icontains=search_query))
+            Q(first_name__icontains=search_query) | Q(pseudo_name__icontains=search_query))
         piece = Piece.objects.filter(
             Q(isbn__icontains=search_query) | Q(name__icontains=search_query))
         publisher = Publisher.objects.filter(name__icontains=search_query)
@@ -341,6 +341,26 @@ class StatusByUserView(APIView):
             else:
                 object = PieceStatus.objects.filter(
                     user=request.data.get('user'))
+        if object:
+            serializer = PieceStatusSerializer(object, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"status": []}, status=status.HTTP_200_OK)
+
+
+class StatusByPieceAndUserView(APIView):
+    def get(self, request, user=None, piece=None):
+        if not piece:
+            piece = request.data.get('piece')
+            if not piece:
+                return Response({"erro": "No piece id provided"}, status=status.HTTP_400_BAD_REQUEST)
+        if not user and request.data.get('user'):
+            object = PieceStatus.objects.filter(user=request.user, piece=piece)
+        else:
+            if user:
+                object = PieceStatus.objects.filter(user=user, piece=piece)
+            else:
+                object = PieceStatus.objects.filter(
+                    user=request.data.get('user'), piece=piece)
         if object:
             serializer = PieceStatusSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)

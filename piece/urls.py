@@ -14,6 +14,7 @@ from .views import (
     StatusByPieceView,
     StatusByUserView,
     StatusByUserFilteringByStatusChoieceView,
+    StatusByPieceAndUserView,
 )
 
 urlpatterns = [
@@ -48,6 +49,10 @@ urlpatterns = [
          name='piece-status-search-by-user'),
     path('status/search/user/<str:user>/<str:status_choice>/', StatusByUserFilteringByStatusChoieceView.as_view(),
          name='piece-status-search-by-user-detail'),
+    path('status/user/piece/<str:user>/<str:piece/', StatusByPieceAndUserView.as_view(),
+         name='piece-status-search-by-user-and-piece-list'),
+    path('status/user/piece', StatusByPieceAndUserView.as_view(),
+         name='piece-status-search-by-user-and-piece-detail'),
 
     path('anotation/', PieceAnotationView.as_view(),
          name='piece-annotation-list'),
