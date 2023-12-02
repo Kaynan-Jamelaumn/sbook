@@ -145,12 +145,18 @@ class Comment(models.Model):
 class PieceAnotation(models.Model):
 
     summary = models.TextField(null=True, blank=True, max_length=3000)
+    page_number = models.IntegerField(null=True, blank=True)
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
     chapter = models.ForeignKey(
         Chapter, on_delete=models.CASCADE, related_name='piece_annotations', null=True)
+
     page = models.ForeignKey(
         Page, on_delete=models.CASCADE, related_name='piece_annotations', null=True)
+
+    piece = models.ForeignKey(
+        Piece, on_delete=models.CASCADE, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

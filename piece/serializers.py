@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation, PieceStatus
 from main.serializers import AuthorSerializer, CustomUserSerializer
-
+from django.db.models import Q
 from decimal import Decimal, ROUND_HALF_UP
 
 
@@ -22,7 +22,8 @@ class PieceSerializer(serializers.ModelSerializer):
 
     def get_rating(self, instance):
         try:
-            ratings = PieceStatus.objects.filter(piece=instance, rating__isnull=False).values_list('rating', flat=True)
+            ratings = PieceStatus.objects.filter(
+                piece=instance, rating__isnull=False).values_list('rating', flat=True)
 
             average_rating = sum(ratings) / len(ratings)
             # Arredonde a média para .0 ou .5
@@ -118,6 +119,18 @@ class PieceAnotationSerializer(serializers.ModelSerializer):
 
 
 class PieceStatusSerializer(serializers.ModelSerializer):
+    last_page = serializers.SerializerMethodField()
+
+    def get_last_page(self, instance):
+        last_annotation = PieceAnotation.objects.filter(Q(piece=instance.piece) | (Q(chapter__piece=instance.piece) | Q(
+            page__chapter__piece=instance.piece))).order_by('-created_at').first()
+        if last_annotation:
+            last_page = last_annotation.page_number if last_annotation.page_number else last_annotation.page
+
+        else:
+            last_page = None
+        return last_page
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['user'] = CustomUserSerializer(
