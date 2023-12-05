@@ -164,8 +164,7 @@ class PieceAnotation(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=models.Q(chapter__isnull=False) | models.Q(
-                    page__isnull=False),
+                check=models.Q(chapter__isnull=False) | models.Q(page__isnull=False) |  models.Q(page_number__isnull=False),
                 name='chapter_or_page_required'
             )
         ]
