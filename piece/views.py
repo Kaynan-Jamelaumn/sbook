@@ -138,7 +138,7 @@ class BaseView(APIView):
             return Response({"error": f"You must be logged in to delete a/an{self.model.__name__}"}, status=status.HTTP_403_FORBIDDEN)
         obj = self.get_object(pk, request)
         obj.delete()
-        return Response({"detail": f"{self.model.__name__} deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"success": True}, status=status.HTTP_200_OK)
 
 
 class GenreView(BaseView):
