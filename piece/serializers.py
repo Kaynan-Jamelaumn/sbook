@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnotation, PieceStatus
+from .models import Publisher, Genre,  Piece, Chapter, PageContent, TextContent, ImageContent, Comment, Page,  PieceAnnotation, PieceStatus
 from main.serializers import AuthorSerializer, CustomUserSerializer
 from django.db.models import Q
 from decimal import Decimal, ROUND_HALF_UP
@@ -102,7 +102,7 @@ class PageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PieceAnotationSerializer(serializers.ModelSerializer):
+class PieceAnnotationSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -114,7 +114,7 @@ class PieceAnotationSerializer(serializers.ModelSerializer):
         return representation
 
     class Meta:
-        model = PieceAnotation
+        model = PieceAnnotation
         fields = '__all__'
 
 
@@ -122,7 +122,7 @@ class PieceStatusSerializer(serializers.ModelSerializer):
     last_page = serializers.SerializerMethodField()
 
     def get_last_page(self, instance):
-        last_annotation = PieceAnotation.objects.filter(Q(piece=instance.piece) | (Q(chapter__piece=instance.piece) | Q(
+        last_annotation = PieceAnnotation.objects.filter(Q(piece=instance.piece) | (Q(chapter__piece=instance.piece) | Q(
             page__chapter__piece=instance.piece))).order_by('-created_at').first()
         if last_annotation:
             last_page = last_annotation.page_number if last_annotation.page_number else last_annotation.page

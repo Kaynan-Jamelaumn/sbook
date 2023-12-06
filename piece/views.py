@@ -1,5 +1,5 @@
-from .models import Publisher, Genre,  Piece, Chapter, Page,  PieceAnotation, PieceStatus,  PageContent, TextContent, ImageContent, Comment
-from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceStatusSerializer, PieceAnotationSerializer
+from .models import Publisher, Genre,  Piece, Chapter, Page,  PieceAnnotation, PieceStatus,  PageContent, TextContent, ImageContent, Comment
+from .serializers import PublisherSerializer, GenreSerializer, TextContentSerializer, ImageContentSerializer, PageSerializer, ChapterSerializer, PieceSerializer, PieceStatusSerializer, PieceAnnotationSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -366,6 +366,24 @@ class StatusByPieceAndUserView(APIView):
             return Response({"status": serializer.data[0]}, status=status.HTTP_200_OK)
         return Response({"status": None}, status=status.HTTP_200_OK)
 
+class AnnotationByPieceAndUserView(APIView):
+    def get(self, request, user=None, piece=None):
+        if not piece:
+            piece = request.data.get('piece')
+            if not piece:
+                return Response({"erro": "No piece id provided"}, status=status.HTTP_400_BAD_REQUEST)
+        if not user and request.data.get('user'):
+            object = PieceAnnotation.objects.filter(user=request.user, piece=piece)
+        else:
+            if user:
+                object = PieceAnnotation.objects.filter(user=user, piece=piece).order_by('-created_at')
+            else:
+                object = PieceAnnotation.objects.filter(user=request.data.get('user'), piece=piece).order_by('-created_at')
+        if object:
+            serializer = PieceAnnotationSerializer(object, many=True)
+            return Response({"annotations": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"annotations": []}, status=status.HTTP_200_OK)
+
 
 class StatusByUserFilteringByStatusChoieceView(APIView):
     def get(self, request, user=None, status_choice=None):
@@ -387,8 +405,8 @@ class StatusByUserFilteringByStatusChoieceView(APIView):
         return Response({"status": []}, status=status.HTTP_200_OK)
 
 
-class PieceAnotationView(BaseView):
-    def __init__(self, model=PieceAnotation, param_name="id", serializer=PieceAnotationSerializer):
+class PieceAnnotationView(BaseView):
+    def __init__(self, model=PieceAnnotation, param_name="id", serializer=PieceAnnotationSerializer):
         super().__init__(model, param_name, serializer)
 
     def get(self, request, pk=None):
@@ -404,7 +422,7 @@ class PieceAnotationView(BaseView):
         return super().delete(request, pk, True)
 
 
-class PieceAnotationContentView(APIView):
+class PieceAnnotationContentView(APIView):
     def get(self, request):
         if request.data.get('type') == 'chapter':
             object = PieceStatus.objects.filter(
@@ -414,12 +432,12 @@ class PieceAnotationContentView(APIView):
             object = PieceStatus.objects.filter(
                 piece=request.data.get('page'))
         if object:
-            serializer = PieceAnotationSerializer(object, many=True)
+            serializer = PieceAnnotationSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
 
-class PieceAnotationByUserView(APIView):
+class PieceAnnotationByUserView(APIView):
     def get(self, request, user=None):
         if not user and not request.data.get('user'):
             object = PieceStatus.objects.filter(user=request.user)
@@ -430,12 +448,12 @@ class PieceAnotationByUserView(APIView):
                 object = PieceStatus.objects.filter(
                     user=request.data.get('user'))
         if object:
-            serializer = PieceAnotationSerializer(object, many=True)
+            serializer = PieceAnnotationSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)
 
 
-class PieceAnotationContentAndUserView(APIView):
+class PieceAnnotationContentAndUserView(APIView):
     def get(self, request):
         if request.data.get('type') == 'chapter':
             if request.data.get('user'):
@@ -456,6 +474,6 @@ class PieceAnotationContentAndUserView(APIView):
                     user=request.user,
                     piece=request.data.get('page'))
         if object:
-            serializer = PieceAnotationSerializer(object, many=True)
+            serializer = PieceAnnotationSerializer(object, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"status": []}, status=status.HTTP_200_OK)

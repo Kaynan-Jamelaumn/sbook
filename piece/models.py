@@ -142,7 +142,7 @@ class Comment(models.Model):
         return f"{self.content} {self.user.username}"
 
 
-class PieceAnotation(models.Model):
+class PieceAnnotation(models.Model):
 
     summary = models.TextField(null=True, blank=True, max_length=3000)
     page_number = models.IntegerField(null=True, blank=True)
