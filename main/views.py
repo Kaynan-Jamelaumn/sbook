@@ -32,8 +32,8 @@ class CustomUserView(BaseView):
     def required_fields(self, request):
         if not request.data.get("first_name"):
             return "First Name field is required"
-        if not request.data.get("email"):
-            return "Email field is required"
+        # if not request.data.get("email"):
+        #     return "Email field is required"
         return False
 
     def post(self, request):
@@ -84,7 +84,7 @@ class CustomUserView(BaseView):
             return Response({"error": "You do not have permission to delete this user"}, status=status.HTTP_403_FORBIDDEN)
         user_instance.is_active = False
         user_instance.save()
-        return Response({"error": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"error": "User deleted successfully"}, status=status.HTTP_200_OK)
 
 
 class CustomUserLogin(APIView):

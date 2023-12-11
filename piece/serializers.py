@@ -122,8 +122,11 @@ class PieceStatusSerializer(serializers.ModelSerializer):
     last_page = serializers.SerializerMethodField()
 
     def get_last_page(self, instance):
-        last_annotation = PieceAnnotation.objects.filter(Q(piece=instance.piece) | (Q(chapter__piece=instance.piece) | Q(
-            page__chapter__piece=instance.piece))).order_by('-created_at').first()
+        last_annotation = PieceAnnotation.objects.filter(
+            ((Q(piece=instance.piece) | (Q(chapter__piece=instance.piece) | Q(page__chapter__piece=instance.piece))) & Q(user=instance.user)
+        )).order_by('-created_at').first()
+    
+        
         if last_annotation:
             last_page = last_annotation.page_number if last_annotation.page_number else last_annotation.page
 
