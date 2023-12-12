@@ -145,16 +145,16 @@ class GenreView(BaseView):
     def __init__(self, model=Genre, param_name="id", serializer=GenreSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         return super().post(request)
 
-    def put(self, request):
+    def put(self,  request: HttpRequest) -> Response:
         return Response({"error": f"Not Allowed"}, status=status.HTTP_403_FORBIDDEN)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk)
 
 
@@ -162,16 +162,16 @@ class PublisherView(BaseView):
     def __init__(self, model=Publisher, param_name="id", serializer=PublisherSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         return super().post(request)
 
-    def put(self, request, pk=None):
+    def put(self, request: HttpRequest, pk: str = None) -> Response:
         return super().put(request, pk)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk)
 
 
@@ -179,22 +179,22 @@ class PieceView(BaseView):
     def __init__(self, model=Piece, param_name="id", serializer=PieceSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         return super().post(request, True)
 
-    def put(self, request, pk=None):
+    def put(self, request: HttpRequest, pk: str = None) -> Response:
         return super().put(request, pk, True)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk, True)
 
 
 class SearchFilterView(APIView):
 
-    def get(self, request):
+    def get(self, request: HttpRequest) -> Response:
         search_query = request.query_params.get('search', '')
         author = Author.objects.filter(
             Q(first_name__icontains=search_query) | Q(pseudo_name__icontains=search_query))
@@ -221,16 +221,16 @@ class ChapterView(BaseView):
     def __init__(self, model=Chapter, param_name="id", serializer=ChapterSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         return super().post(request, True)
 
-    def put(self, request, pk=None):
+    def put(self, request: HttpRequest, pk: str = None) -> Response:
         return super().put(request, pk, True)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk, True)
 
 
@@ -238,10 +238,10 @@ class PageView(BaseView):
     def __init__(self, model=Page, param_name="id", serializer=PageSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         data = request.data
         content_type = data.get('content_type')
         chapter_id = data.get('chapter')
@@ -269,7 +269,7 @@ class PageView(BaseView):
 
         return Response({'error': 'Invalid content_type'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk=None):
+    def put(self, request: HttpRequest, pk: str = None) -> Response:
         page_obj = self.get_object(pk, request)
 
         if not page_obj:
@@ -297,7 +297,7 @@ class PageView(BaseView):
 
         return Response({'error': 'Invalid content_type'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk, True)
 
 
@@ -305,21 +305,21 @@ class PieceStatusView(BaseView):
     def __init__(self, model=PieceStatus, param_name="id", serializer=PieceStatusSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         return super().post(request, True)
 
-    def put(self, request, pk=None):
+    def put(self, request: HttpRequest, pk: str = None) -> Response:
         return super().put(request, pk, True)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk, True)
 
 
 class StatusByPieceView(APIView):
-    def get(self, request, piece=None):
+    def get(self, request: HttpRequest, piece: str = None) -> Response:
         if piece:
             object = PieceStatus.objects.filter(piece=piece)
         else:
@@ -332,7 +332,7 @@ class StatusByPieceView(APIView):
 
 
 class StatusByUserView(APIView):
-    def get(self, request, user=None):
+    def get(self, request: HttpRequest, user: str = None) -> Response:
         if not user and request.data.get('user'):
             object = PieceStatus.objects.filter(user=request.user)
         else:
@@ -348,7 +348,7 @@ class StatusByUserView(APIView):
 
 
 class StatusByPieceAndUserView(APIView):
-    def get(self, request, user=None, piece=None):
+    def get(self, request: HttpRequest, user: str = None, piece: str = None) -> Response:
         if not piece:
             piece = request.data.get('piece')
             if not piece:
@@ -366,19 +366,23 @@ class StatusByPieceAndUserView(APIView):
             return Response({"status": serializer.data[0]}, status=status.HTTP_200_OK)
         return Response({"status": None}, status=status.HTTP_200_OK)
 
+
 class AnnotationByPieceAndUserView(APIView):
-    def get(self, request, user=None, piece=None):
+    def get(self, request: HttpRequest, user: str = None, piece: str = None) -> Response:
         if not piece:
             piece = request.data.get('piece')
             if not piece:
                 return Response({"erro": "No piece id provided"}, status=status.HTTP_400_BAD_REQUEST)
         if not user and request.data.get('user'):
-            object = PieceAnnotation.objects.filter(user=request.user, piece=piece)
+            object = PieceAnnotation.objects.filter(
+                user=request.user, piece=piece)
         else:
             if user:
-                object = PieceAnnotation.objects.filter(user=user, piece=piece).order_by('-created_at')
+                object = PieceAnnotation.objects.filter(
+                    user=user, piece=piece).order_by('-created_at')
             else:
-                object = PieceAnnotation.objects.filter(user=request.data.get('user'), piece=piece).order_by('-created_at')
+                object = PieceAnnotation.objects.filter(
+                    user=request.data.get('user'), piece=piece).order_by('-created_at')
         if object:
             serializer = PieceAnnotationSerializer(object, many=True)
             return Response({"annotations": serializer.data}, status=status.HTTP_200_OK)
@@ -386,7 +390,7 @@ class AnnotationByPieceAndUserView(APIView):
 
 
 class StatusByUserFilteringByStatusChoieceView(APIView):
-    def get(self, request, user=None, status_choice=None):
+    def get(self, request: HttpRequest, user: str = None, status_choice: str = None) -> Response:
         if not status_choice:
             status_choice = request.data.get('status')
         if not user and request.data.get('user'):
@@ -409,21 +413,21 @@ class PieceAnnotationView(BaseView):
     def __init__(self, model=PieceAnnotation, param_name="id", serializer=PieceAnnotationSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         return super().post(request, True)
 
-    def put(self, request, pk=None):
+    def put(self, request: HttpRequest, pk: str = None) -> Response:
         return super().put(request, pk, True)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk, True)
 
 
 class PieceAnnotationContentView(APIView):
-    def get(self, request):
+    def get(self, request: HttpRequest) -> Response:
         if request.data.get('type') == 'chapter':
             object = PieceStatus.objects.filter(
                 piece=request.data.get('chapter'))
@@ -438,7 +442,7 @@ class PieceAnnotationContentView(APIView):
 
 
 class PieceAnnotationByUserView(APIView):
-    def get(self, request, user=None):
+    def get(self, request: HttpRequest, user: str = None) -> Response:
         if not user and not request.data.get('user'):
             object = PieceStatus.objects.filter(user=request.user)
         else:

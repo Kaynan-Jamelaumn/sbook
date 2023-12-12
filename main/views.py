@@ -12,10 +12,12 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
 from piece.views import BaseView
 
+from django.http import HttpRequest
+
 
 class CurrentUserView(APIView):
 
-    def get(self, request):
+    def get(self, request: HttpRequest) -> Response:
         if request.user.is_authenticated:
             serializer = CurrentCustomUserSerializer(request.user)
             return Response({"user": serializer.data}, status=status.HTTP_200_OK)
@@ -26,17 +28,17 @@ class CustomUserView(BaseView):
     def __init__(self, model=CustomUser, param_name="id", serializer=CustomUserSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, id=None):
+    def get(self, request: HttpRequest, id: int = None) -> Response:
         return super().get(request, id)
 
-    def required_fields(self, request):
+    def required_fields(self, request: HttpRequest) -> bool | False:
         if not request.data.get("first_name"):
             return "First Name field is required"
         if not request.data.get("email"):
             return "Email field is required"
         return False
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         message = self.required_fields(request)
         if message:
             return Response({"detail": "Email field is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,7 +52,7 @@ class CustomUserView(BaseView):
 
         return Response({"user": serializer.data}, status=status.HTTP_201_CREATED)
 
-    def put(self, request, id=None):
+    def put(self, request: HttpRequest, id: id = None) -> Response:
         user = self.to_retrieve(request, id)
 
         if isinstance(user, self.serializer):  # Check if user is a serializer
@@ -73,7 +75,7 @@ class CustomUserView(BaseView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, id=None):
+    def delete(self, request: HttpRequest, id: id = None) -> Response:
         user = self.to_retrieve(request, id)
 
         if isinstance(user, self.serializer):  # Check if user is a serializer
@@ -89,7 +91,7 @@ class CustomUserView(BaseView):
 
 class CustomUserLogin(APIView):
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(request, username=username, password=password)
@@ -105,7 +107,7 @@ class CustomUserLogin(APIView):
 class CustomUserLogout(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request: HttpRequest) -> Response:
         logout(request)   # Isso encerrará a sessão do usuário
         return Response({"success": True}, status=status.HTTP_200_OK)
 
@@ -114,14 +116,14 @@ class AuthorView(BaseView):
     def __init__(self, model=Author, param_name="id", serializer=AuthorSerializer):
         super().__init__(model, param_name, serializer)
 
-    def get(self, request, pk=None):
+    def get(self, request: HttpRequest, pk: str = None) -> Response:
         return super().get(request, pk)
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         return super().post(request)
 
-    def put(self, request, pk=None):
+    def put(self, request: HttpRequest, pk: str = None) -> Response:
         return super().put(request, pk)
 
-    def delete(self, request, pk=None):
+    def delete(self, request: HttpRequest, pk: str = None) -> Response:
         return super().delete(request, pk)
