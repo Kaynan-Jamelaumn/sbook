@@ -31,7 +31,7 @@ class CustomUserView(BaseView):
     def get(self, request: HttpRequest, id: int = None) -> Response:
         return super().get(request, id)
 
-    def required_fields(self, request: HttpRequest) -> bool | False:
+    def required_fields(self, request: HttpRequest) -> bool | str:
         if not request.data.get("first_name"):
             return "First Name field is required"
         # if not request.data.get("email"):
